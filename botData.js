@@ -1,91 +1,143 @@
-// --- Extracted Data Arrays from your Bot Logic ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catholic Bible & Daily Readings Bot</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #131c2e;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #d97706; /* Liturgical Gold */
+      --accent-hover: #b45309;
+      --secondary: #38bdf8;
+      --border: #1e293b;
+    }
 
-const RANDOM_VERSES = [
-  "John 3:16", "John 14:6", "John 8:12", "John 11:25",
-  "John 14:27", "John 16:33", "Matthew 5:14", "Matthew 6:33",
-  "Matthew 7:7", "Matthew 11:28", "Romans 8:28", "Philippians 4:13",
-  "Psalm 23:1", "Psalm 46:1", "Proverbs 3:5-6", "Isaiah 40:31",
-  "Jeremiah 29:11", "Joshua 1:9"
-];
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
 
-const VERSE_MEANINGS = {
-  "John 3:16": "God's love for humanity is so great that He gave His only Son so that everyone who believes in Him may have eternal life.",
-  "John 14:6": "Jesus teaches that He is the way to fireplaces of the Father, the truth we can trust, and the source of eternal life.",
-  "Philippians 4:13": "Christ gives believers strength to face the circumstances placed before them.",
-  "Psalm 23:1": "God is portrayed as a shepherd who lovingly cares for His people.",
-  "Proverbs 3:5-6": "Trust God rather than relying entirely on your own understanding, and seek His direction.",
-  "Jeremiah 29:11": "God speaks of His intention for His people toward hope and a future.",
-  "Joshua 1:9": "Be strong and courageous because God is with you wherever you go."
-};
+    .container {
+      width: 100%;
+      max-width: 750px;
+    }
 
-const RANDOM_REFLECTIONS = [
-  "Take a moment to thank God for His presence in your life today.",
-  "Ask God to help you live out the message of this verse today.",
-  "Let this verse remind you to trust God even when you cannot see the whole path.",
-  "Take a quiet moment to pray and place today's worries in God's hands.",
-  "Think about one way you can put this verse into practice today."
-];
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+    }
 
-const MESSAGES_FROM_GOD = [
-  "God's love for you is not measured by who chooses you. Your worth was never theirs to decide.",
-  "Someone not loving you back does not mean you are difficult to love.",
-  "You do not need to chase someone to prove that your love is real.",
-  "God sees the tears you hide and the courage it takes to keep going.",
-  "You are worthy of a love that is honest, kind, and freely given.",
-  "Do not confuse someone's inability to love you with your inability to be loved.",
-  "God has not forgotten you just because life feels quiet right now.",
-  "Your heart deserves patience, not pressure."
-];
+    h1 {
+      font-size: 24px;
+      margin-top: 0;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 8px;
+    }
 
-// --- UI Event Handlers ---
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
 
-let lastReflectionIndex = -1;
-let lastMessageIndex = -1;
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
 
-function getRandomReflection() {
-  let index;
-  do {
-    index = Math.floor(Math.random() * RANDOM_REFLECTIONS.length);
-  } while (RANDOM_REFLECTIONS.length > 1 && index === lastReflectionIndex);
-  lastReflectionIndex = index;
-  return RANDOM_REFLECTIONS[index];
-}
+    @media(min-width: 500px) {
+      .button-group {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
 
-function handleRandomVerse() {
-  const reference = RANDOM_VERSES[Math.floor(Math.random() * RANDOM_VERSES.length)];
-  const meaning = VERSE_MEANINGS[reference] || "This verse reminds us to trust God and live according to His word.";
-  const reflection = getRandomReflection();
+    button {
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
 
-  const output = `✝️📖 DAILY BIBLE VERSE\n━━━━━━━━━━━━━━━━━━━━\n\n📖 ${reference}\n\n💡 Meaning\n\n${meaning}\n\n🙏 Reflection\n\n${reflection}\n\n━━━━━━━━━━━━━━━━━━━━\n\n✝️ God bless you ❤️`;
-  
-  document.getElementById('output').innerText = output;
-}
+    button:hover {
+      background-color: var(--accent-hover);
+    }
 
-function handleMessageFromGod() {
-  let index;
-  do {
-    index = Math.floor(Math.random() * MESSAGES_FROM_GOD.length);
-  } while (MESSAGES_FROM_GOD.length > 1 && index === lastMessageIndex);
-  lastMessageIndex = index;
-  const reflection = MESSAGES_FROM_GOD[index];
+    button:active {
+      transform: scale(0.98);
+    }
 
-  const output = `✝️❤️ A MESSAGE TO REFLECT ON\n━━━━━━━━━━━━━━━━━━━━\n\n${reflection}\n\n🙏 Take what helps you, reflect, and keep going.\n\n━━━━━━━━━━━━━━━━━━━━`;
+    .output-box {
+      background-color: #080c14;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 250px;
+      max-height: 480px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      font-size: 15px;
+      color: #e2e8f0;
+      direction: rtl; /* Supports proper Arabic text layout */
+      text-align: right;
+    }
 
-  document.getElementById('output').innerText = output;
-}
+    .output-box.ltr {
+      direction: ltr;
+      text-align: left;
+    }
 
-async function handleDailyReading() {
-  const outputBox = document.getElementById('output');
-  outputBox.innerText = "⏳ Fetching today's readings from the web...";
+    .placeholder {
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 80px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
 
-  try {
-    // Calls the same public Bible API your bot uses
-    const response = await fetch("https://api.biblesupersearch.com/api?bible=web&reference=John+3:16&data_format=minimal");
-    const data = await response.json();
-    const verseText = data?.results?.web?.[0]?.text || "For God so loved the world...";
+  <div class="container">
+    <div class="card">
+      <h1>✝️ Catholic Bible & Daily Readings</h1>
+      <div class="subtitle">Your 24/7 Spiritual Web Companion • Maronite Liturgical Calendar</div>
+      
+      <div class="button-group">
+        <button onclick="handleDailyReading()">📅 Today's Reading (.test)</button>
+        <button onclick="handleRandomVerse()">📖 Random Verse (.verse)</button>
+        <button onclick="handleMessageFromGod()">❤️ Message From God</button>
+      </div>
 
-    outputBox.innerText = `✝️📖 SAMPLE SCRIPTURE FETCH\n━━━━━━━━━━━━━━━━━━━━\n\n📖 John 3:16 (WEB)\n\n"${verseText}"\n\n(This demonstrates how your bot's API fetch functions connect directly to browser-side JavaScript!)\n━━━━━━━━━━━━━━━━━━━━\n\n✝️ God bless you ❤️`;
-  } catch (err) {
-    outputBox.innerText = "⚠️ Could not reach scripture API. Check your internet connection.";
-  }
-}
+      <div id="output" class="output-box placeholder">
+        اختر زرًا من الأعلى لعرض القراءات والآيات المقدسة...<br>Select an option above to load scripture and reflections.
+      </div>
+    </div>
+  </div>
+
+  <script src="botData.js"></script>
+</body>
+</html>
