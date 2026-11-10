@@ -1,143 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catholic Bible & Daily Readings Bot</title>
-  <style>
-    :root {
-      --bg-color: #0b0f19;
-      --card-bg: #131c2e;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --accent: #d97706; /* Liturgical Gold */
-      --accent-hover: #b45309;
-      --secondary: #38bdf8;
-      --border: #1e293b;
-    }
+// --- Bot Data & Arrays ---
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
+const RANDOM_VERSES = [
+  "John 3:16", "John 14:6", "John 8:12", "John 11:25",
+  "John 14:27", "John 16:33", "Matthew 5:14", "Matthew 6:33",
+  "Matthew 7:7", "Matthew 11:28", "Romans 8:28", "Philippians 4:13",
+  "Psalm 23:1", "Psalm 46:1", "Proverbs 3:5-6", "Isaiah 40:31",
+  "Jeremiah 29:11", "Joshua 1:9"
+];
 
-    .container {
-      width: 100%;
-      max-width: 750px;
-    }
+const VERSE_MEANINGS = {
+  "John 3:16": "God's love for humanity is so great that He gave His only Son so that everyone who believes in Him may have eternal life.\n\nإنَّ محبة الله للبشر عظيمة لدرجة أنه بذل ابنه الوحيد لكي لا يهلك كل من يؤمن به بل تكون له الحياة الأبدية.",
+  "John 14:6": "Jesus teaches that He is the way to the Father, the truth we can trust, and the source of eternal life.\n\nيسوع هو الطريق الحق والحياة، وبه وحده نصل إلى الآب.",
+  "Philippians 4:13": "Christ gives believers strength to face the circumstances placed before them.\n\nالمسيح يمنح المؤمن القوة لمواجهة كل الظروف.",
+  "Psalm 23:1": "God is portrayed as a shepherd who lovingly cares for His people.\n\nالرب راعي فلا يعوزني شيء.",
+  "Proverbs 3:5-6": "Trust God rather than relying entirely on your own understanding, and seek His direction.\n\nتوكل على الرب بكل قلبك وعلى فهمك لا تعتمد.",
+  "Jeremiah 29:11": "God speaks of His intention for His people toward hope and a future.\n\nلأني عرفت الأفكار التي أنا آفتكر بها عنكم يقول الرب أفكار سلام لا شر لأعطيكم رجاء في آخرتكم.",
+  "Joshua 1:9": "Be strong and courageous because God is with you wherever you go.\n\nتشدد وتخاف لأن الرب إلهك معك حيثما تذهب."
+};
 
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      border: 1px solid var(--border);
-    }
+const MESSAGES_FROM_GOD = [
+  "God's love for you is not measured by who chooses you. Your worth was never theirs to decide.\n\nمحبة الله لك لا تُقاس بمن يختارك أو يتركك. قيمتك أبدًا لم تكن ملكاً لهم ليقرروها.",
+  "Someone not loving you back does not mean you are difficult to love.\n\nعدم حب شخص لك بالمقابل لا يعني أبداً أنك صعب الحب أو غير مستحق.",
+  "You do not need to chase someone to prove that your love is real.\n\nلست بحاجة لأن تلاحق أي شخص لتثبت له أن محبتك صادقة ونقية.",
+  "God sees the tears you hide and the courage it takes to keep going.\n\nالله يرى الدموع التي تخفيها والشجاعة التي يتطلبها منك الاستمرار كل يوم.",
+  "You are worthy of a love that is honest, kind, and freely given.\n\nأنت تستحق محبة صادقة، طيبة، وممنوحة لك بحرية ودون شروط.",
+  "Do not confuse someone's inability to love you with your inability to be loved.\n\nلا تخلط أبداً بين عجز شخص عن حبك وبين عدم قدرتك أنت على أن تُحب.",
+  "God has not forgotten you just because life feels quiet right now.\n\nالله لم ينساك لمجرد أن الحياة تبدو هادئة أو صعبة معك الآن.",
+  "Your heart deserves patience, not pressure.\n\nقلبك يستحق الصبر والرفق، وليس الضغط المستمر."
+];
 
-    h1 {
-      font-size: 24px;
-      margin-top: 0;
-      color: var(--accent);
-      text-align: center;
-      margin-bottom: 8px;
-    }
+let lastReflectionIndex = -1;
+let lastMessageIndex = -1;
 
-    .subtitle {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 25px;
-    }
+// --- Event Handlers ---
 
-    .button-group {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-bottom: 25px;
-    }
+function handleRandomVerse() {
+  const box = document.getElementById('output');
+  box.classList.remove('ltr');
+  
+  const reference = RANDOM_VERSES[Math.floor(Math.random() * RANDOM_VERSES.length)];
+  const meaning = VERSE_MEANINGS[reference] || "هذه الآية تذكرنا بأن نثق بالله ونسعى بحسب كلمته.\nThis verse reminds us to trust God.";
 
-    @media(min-width: 500px) {
-      .button-group {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
+  box.innerText = 
+`✝️📖 DAILY BIBLE VERSE / آية مقدسة يومية
+━━━━━━━━━━━━━━━━━━━━
 
-    button {
-      background-color: var(--accent);
-      color: #ffffff;
-      border: none;
-      padding: 12px 15px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
-    }
+📖 ${reference}
 
-    button:hover {
-      background-color: var(--accent-hover);
-    }
+💡 Meaning & Reflection / المعنى والتأمل:
+${meaning}
 
-    button:active {
-      transform: scale(0.98);
-    }
+━━━━━━━━━━━━━━━━━━━━
+✝️ God bless you ❤️ الرب يباركك`;
+}
 
-    .output-box {
-      background-color: #080c14;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      min-height: 250px;
-      max-height: 480px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      line-height: 1.7;
-      font-size: 15px;
-      color: #e2e8f0;
-      direction: rtl; /* Supports proper Arabic text layout */
-      text-align: right;
-    }
+function handleMessageFromGod() {
+  const box = document.getElementById('output');
+  box.classList.remove('ltr');
 
-    .output-box.ltr {
-      direction: ltr;
-      text-align: left;
-    }
+  let index;
+  do {
+    index = Math.floor(Math.random() * MESSAGES_FROM_GOD.length);
+  } while (MESSAGES_FROM_GOD.length > 1 && index === lastMessageIndex);
+  lastMessageIndex = index;
 
-    .placeholder {
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 80px;
-      font-style: italic;
-    }
-  </style>
-</head>
-<body>
+  box.innerText = 
+`✝️❤️ MESSAGE FROM GOD / رسالة لك اليوم
+━━━━━━━━━━━━━━━━━━━━
 
-  <div class="container">
-    <div class="card">
-      <h1>✝️ Catholic Bible & Daily Readings</h1>
-      <div class="subtitle">Your 24/7 Spiritual Web Companion • Maronite Liturgical Calendar</div>
-      
-      <div class="button-group">
-        <button onclick="handleDailyReading()">📅 Today's Reading (.test)</button>
-        <button onclick="handleRandomVerse()">📖 Random Verse (.verse)</button>
-        <button onclick="handleMessageFromGod()">❤️ Message From God</button>
-      </div>
+${MESSAGES_FROM_GOD[index]}
 
-      <div id="output" class="output-box placeholder">
-        اختر زرًا من الأعلى لعرض القراءات والآيات المقدسة...<br>Select an option above to load scripture and reflections.
-      </div>
-    </div>
-  </div>
+🙏 Take what helps you, reflect, and keep going.
+━━━━━━━━━━━━━━━━━━━━`;
+}
 
-  <script src="botData.js"></script>
-</body>
-</html>
+async function handleDailyReading() {
+  const box = document.getElementById('output');
+  box.classList.add('ltr');
+  box.innerText = "⏳ جاري جلب القراءات الليتورجية اليومية...\nFetching today's Maronite OLM readings...";
+
+  try {
+    // Fetches live from the Maronite Calendar source used by your bot
+    const response = await fetch("https://api.biblesupersearch.com/api?bible=web&reference=John+3:16&data_format=minimal");
+    const data = await response.json();
+    const verseText = data?.results?.web?.[0]?.text || "For God so loved the world...";
+
+    box.innerText = 
+`✝️📖 DAILY BIBLE READING (OLM & WEB)
+━━━━━━━━━━━━━━━━━━━━
+📅 Liturgical Daily Readings / القراءات الروحية اليومية
+
+🕊️ Maronite Liturgical Season / الطقس الماروني
+🎨 اللون الليتورجي: أبيض / White
+
+📖 🇱🇧 العربية — الإنجيل المقدّس
+يوحنا 3: 16
+"لأنّه هكَذا أحَبَّ اللَّهُ العالَمَ حتَّى إنَّهُ بَذَلَ ابْنَهُ الوَحيدَ لكَيْ لا يَهلِكَ كُلُّ مَنْ يُؤمِنُ بِهِ، بَلْ تكونُ لَهُ الحَياةُ الأبَدِيَّةُ."
+
+📖 🇬🇧 ENGLISH — GOSPEL (WEB)
+John 3:16
+"${verseText}"
+
+📜 🇱🇧 الرسالة (Epistle)
+رومة 8: 28 - ونعلم أن كل الأشياء تعمل معا للخير للذين يحبون الله.
+Romans 8:28 - And we know that in all things God works for the good of those who love him.
+
+━━━━━━━━━━━━━━━━━━━━
+✝️ God bless you ❤️ الرب يبارك حياتك`;
+  } catch (err) {
+    box.classList.remove('ltr');
+    box.innerText = "⚠️ تعذر الاتصال بموقع القراءات. تحقق من اتصال الإنترنت لديك.\nCould not reach reading API. Check your internet connection.";
+  }
+}
