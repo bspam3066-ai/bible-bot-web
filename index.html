@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catholic Bible & Reflection Web App</title>
+  <title>Catholic Bible & Daily Readings Bot</title>
   <style>
     :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-main: #f8fafc;
+      --bg-color: #0b0f19;
+      --card-bg: #131c2e;
+      --text-main: #f1f5f9;
       --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-hover: #0ea5e9;
-      --border: #334155;
+      --accent: #d97706; /* Liturgical Gold */
+      --accent-hover: #b45309;
+      --secondary: #38bdf8;
+      --border: #1e293b;
     }
 
     body {
@@ -30,14 +31,14 @@
 
     .container {
       width: 100%;
-      max-width: 650px;
+      max-width: 750px;
     }
 
     .card {
       background-color: var(--card-bg);
       border-radius: 16px;
       padding: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border);
     }
 
@@ -46,24 +47,37 @@
       margin-top: 0;
       color: var(--accent);
       text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
       margin-bottom: 25px;
     }
 
     .button-group {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 12px;
       margin-bottom: 25px;
     }
 
+    @media(min-width: 500px) {
+      .button-group {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
     button {
       background-color: var(--accent);
-      color: #0f172a;
+      color: #ffffff;
       border: none;
-      padding: 12px 20px;
+      padding: 12px 15px;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
       transition: background-color 0.2s, transform 0.1s;
     }
@@ -77,23 +91,30 @@
     }
 
     .output-box {
-      background-color: #0f172a;
+      background-color: #080c14;
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 20px;
-      min-height: 150px;
-      max-height: 400px;
+      min-height: 250px;
+      max-height: 480px;
       overflow-y: auto;
       white-space: pre-wrap;
-      line-height: 1.6;
+      line-height: 1.7;
       font-size: 15px;
       color: #e2e8f0;
+      direction: rtl; /* Supports proper Arabic text layout */
+      text-align: right;
+    }
+
+    .output-box.ltr {
+      direction: ltr;
+      text-align: left;
     }
 
     .placeholder {
       color: var(--text-muted);
       text-align: center;
-      margin-top: 50px;
+      margin-top: 80px;
       font-style: italic;
     }
   </style>
@@ -102,21 +123,21 @@
 
   <div class="container">
     <div class="card">
-      <h1>✝️ Catholic Bible & Reflection App</h1>
+      <h1>✝️ Catholic Bible & Daily Readings</h1>
+      <div class="subtitle">Your 24/7 Spiritual Web Companion • Maronite Liturgical Calendar</div>
       
       <div class="button-group">
-        <button onclick="handleRandomVerse()">📖 Get Random Verse (.verse)</button>
-        <button onclick="handleMessageFromGod()">❤️ Message of Encouragement (.message from god)</button>
         <button onclick="handleDailyReading()">📅 Today's Reading (.test)</button>
+        <button onclick="handleRandomVerse()">📖 Random Verse (.verse)</button>
+        <button onclick="handleMessageFromGod()">❤️ Message From God</button>
       </div>
 
-      <div id="output" class="output-box">
-        <div class="placeholder">Select an option above to load scripture or reflections...</div>
+      <div id="output" class="output-box placeholder">
+        اختر زرًا من الأعلى لعرض القراءات والآيات المقدسة...<br>Select an option above to load scripture and reflections.
       </div>
     </div>
   </div>
 
-  <!-- Import your extracted bot arrays and logic script -->
   <script src="botData.js"></script>
 </body>
 </html>
