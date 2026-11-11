@@ -39,7 +39,7 @@ jobs:
       - name: Assemble static website
         run: |
           mkdir -p _site/data
-          cp index.html app.js botData.js saints.js style.css _site/
+          cp index.html app.js botData.js prayers.js saints.js style.css _site/
           node scripts/generate-data.mjs
 
       - name: Upload GitHub Pages artifact
