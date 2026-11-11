@@ -1,0 +1,14 @@
+{
+  "name": "verbum-dei-catholic-bible",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo \"Static Netlify site - no frontend build required\""
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "netlify-cli": "^17.38.1"
+  }
+}
