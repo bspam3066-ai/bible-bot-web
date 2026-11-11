@@ -87,7 +87,9 @@
   // while retaining the widely recognised saints from the universal Church.
   entries.push({
     en: "Rita of Cascia", ar: "القديسة ريتا من كاشيا", letter: "R",
-    imageDisabled: true,    status: "Saint · Augustinian nun · Patron of difficult causes",
+    imageUrl: "https://stritaparishnchiru.com/images/rita-thorn.jpeg",
+    imagePage: "https://stritaparishnchiru.com/st-rita-history.html",
+    status: "Saint · Augustinian nun · Patron of difficult causes",
     place: "Cascia, Italy", years: "c. 1381–1457",
     storyEn: "Rita was born in the town of Roccaporena near Cascia in central Italy. As a young woman she married and became a mother. After a difficult family life and the deaths of her husband and sons, she sought admission to the Augustinian convent in Cascia. There she lived for many years in prayer, humility, reconciliation and care for others. Her devotion to the Passion of Christ and her patient response to suffering became central to the way Catholics remember her. She died in 1457 and was canonised by Pope Leo XIII in 1900. Popular devotion often invokes her in difficult or seemingly impossible situations, but her life is also a witness to forgiveness, perseverance and hope.",
     storyAr: "وُلدت ريتا في بلدة روكّابورينا قرب كاشيا في وسط إيطاليا. تزوّجت في شبابها وأصبحت أمًّا، وعاشت ظروفًا عائليّة صعبة. وبعد وفاة زوجها وابنيها، طلبت الانضمام إلى دير الراهبات الأوغسطينيّات في كاشيا. عاشت هناك سنوات طويلة في الصلاة والتواضع والمصالحة وخدمة الآخرين. وتميّزت بتعبّدها لآلام المسيح وبسعيها إلى الغفران والرجاء. توفّيت سنة 1457 وأعلنها البابا لاون الثالث عشر قدّيسة سنة 1900. ويلجأ إليها كثيرون في القضايا الصعبة، لكن حياتها تذكّر أيضًا بأهميّة المصالحة والصبر والثقة بالله."
