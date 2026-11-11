@@ -6,7 +6,7 @@
   const jesusArtwork = [
     { file: "Jesus_seated.png", credit: "Alexandre Bida · Public Domain" },
     { file: "Jesus_Christ_-_Hofmann.jpg", credit: "Heinrich Hofmann · Public Domain" },
-    { file: "Jezus_Christus.jpg", credit: "Anonymous · CC0" },
+    
     { file: "Jesuschrist.jpg", credit: "Hanna Asfours · Public Domain" },
     { file: "Jesus_ascending_to_heaven.jpg", credit: "John Singleton Copley · Public Domain" }
   ];
