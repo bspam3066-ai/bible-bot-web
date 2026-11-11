@@ -11,7 +11,7 @@
 
   const translations = {
     en: {
-      navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection", navSaints:"Saints", navPriest:"Church life", navPrayers:"Prayers", prayersTitle:"Prayer library", prayersDescription:"Traditional prayers and daily devotions in Arabic and English.", openPrayers:"Open the prayer library ↗", heroEyebrow:"A QUIETER PLACE FOR WHAT MATTERS", heroButton:"Read today’s Word", saintsButton:"Meet the saints",
+      quickVerse:"New Bible Verse", quickMessage:"Message from God", navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection", navSaints:"Saints", navPriest:"Church life", navPrayers:"Prayers", prayersTitle:"Prayer library", prayersDescription:"Traditional prayers and daily devotions in Arabic and English.", openPrayers:"Open the prayer library ↗", heroEyebrow:"A QUIETER PLACE FOR WHAT MATTERS", heroButton:"Read today’s Word", saintsButton:"Meet the saints",
       heroEyebrow:"A CATHOLIC SCRIPTURE COMPANION", heroTitle:'Rooted in the Word.<br><em>Guided by faith.</em>',
       heroSubtitle:"Read the Scriptures, reflect with the Church, and carry the Word into your day.",
       welcomeKicker:"YOUR DAILY TIME WITH GOD", welcomeTitle:"A moment in the Word",
@@ -29,7 +29,7 @@
       fontLabel:"Reading text size", themeLabel:"Color theme", saveSettings:"Save settings"
     },
     ar: {
-      navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمّل", navSaints:"القديسون", navPriest:"الحياة الكنسية", navPrayers:"الصلوات", prayersTitle:"مكتبة الصلوات", prayersDescription:"صلوات كنسيّة وتأمّلات يومية بالعربية والإنجليزية.", openPrayers:"افتح مكتبة الصلوات ←", heroEyebrow:"مساحة هادئة لما هو أساسي", heroButton:"اقرأ كلمة اليوم", saintsButton:"تعرّف إلى القديسين",
+      quickVerse:"آية جديدة من الكتاب المقدّس", quickMessage:"رسالة من الله", navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمّل", navSaints:"القديسون", navPriest:"الحياة الكنسية", navPrayers:"الصلوات", prayersTitle:"مكتبة الصلوات", prayersDescription:"صلوات كنسيّة وتأمّلات يومية بالعربية والإنجليزية.", openPrayers:"افتح مكتبة الصلوات ←", heroEyebrow:"مساحة هادئة لما هو أساسي", heroButton:"اقرأ كلمة اليوم", saintsButton:"تعرّف إلى القديسين",
       heroEyebrow:"رفيقك في قراءة الكتاب المقدّس", heroTitle:'متجذّرون في الكلمة.<br><em>ومسترشدون بالإيمان.</em>',
       heroSubtitle:"اقرأ الكتاب المقدّس، وتأمّل مع الكنيسة، واحمل الكلمة معك طوال يومك.",
       welcomeKicker:"وقتك اليومي مع الله", welcomeTitle:"لحظة مع الكلمة",
