@@ -3,7 +3,7 @@
   const output = $("#output");
   const panelTitle = $("#panelTitle");
   const settingsDialog = $("#settingsDialog");
-  const defaults = { language: "both", fontSize: "normal", theme: "parchment" };
+  const defaults = { language: "both", fontSize: "normal", theme: "light" };
   let settings = { ...defaults, ...readSettings() };
   let lastVerse = "";
   let lastReflection = -1;
@@ -163,11 +163,38 @@
     setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">🙏 Take a quiet moment to reflect and pray.</p><button class="text-button" data-action="reflection">Another reflection →</button>`);
   }
 
+  function showLibrary(type) {
+    const isArabic = settings.language === "ar";
+    const library = {
+      jesus: {
+        en: ["Jesus Christ", "At the heart of Christian faith is the person of Jesus: his life, teaching, compassion, death and resurrection.", [["The Gospels", "Read the four Gospel accounts and follow the story of Jesus and his teaching."], ["A way of life", "Jesus teaches love of God and neighbour, mercy, forgiveness, humility and care for others."]]],
+        ar: ["يسوع المسيح", "في قلب الإيمان المسيحي شخص يسوع: حياته وتعاليمه ورحمته وموته وقيامته.", [["الأناجيل", "اقرأ روايات الأناجيل الأربعة وتابع حياة يسوع وتعاليمه."], ["أسلوب حياة", "يدعونا يسوع إلى محبة الله والقريب والرحمة والمغفرة والتواضع."]]]
+      },
+      saints: {
+        en: ["Saints", "Saints are remembered as people whose lives offer examples of faith, courage, service and love.", [["Saint Maron", "A Syriac Christian monk and spiritual father whose tradition became central to the Maronite Church."], ["Saint Charbel Makhlouf", "A Lebanese Maronite monk and priest (1828–1898) who lived at Annaya and became known for a life of prayer and simplicity."]]],
+        ar: ["القدّيسون", "نتذكّر القدّيسين كشهود عاشوا الإيمان والشجاعة والخدمة والمحبة.", [["القدّيس مارون", "راهب سرياني مسيحي وأب روحي ارتبطت به جذور التقليد الماروني."], ["القدّيس شربل مخلوف", "راهب وكاهن ماروني لبناني (1828–1898)، عاش في عنايا واشتهر بحياة الصلاة والبساطة."]]]
+      },
+      priests: {
+        en: ["Priests", "In the Catholic Church, priests serve their communities through prayer, teaching, pastoral care and the celebration of the sacraments.", [["A vocation of service", "Priestly ministry is centred on accompanying people, sharing the Gospel and serving the wider community."], ["The Maronite tradition", "Maronite priests serve in parishes and communities shaped by the Syriac Antiochene tradition."]]],
+        ar: ["الكهنة", "يخدم الكهنة في الكنيسة الكاثوليكية جماعاتهم بالصلاة والتعليم والرعاية الروحية والاحتفال بالأسرار.", [["دعوة إلى الخدمة", "تتمحور الخدمة الكهنوتية حول مرافقة الناس وإعلان الإنجيل وخدمة الجماعة."], ["التقليد الماروني", "يخدم الكهنة الموارنة في الرعايا والجماعات ضمن التقليد الأنطاكي السرياني."]]]
+      }
+    };
+    const item = library[type][isArabic ? "ar" : "en"];
+    const image = type === "jesus" ? "https://commons.wikimedia.org/wiki/Special:FilePath/Christ_Pantocrator_icon.jpg" : type === "saints" ? "https://commons.wikimedia.org/wiki/Special:FilePath/Saint_Maron.jpg" : "https://commons.wikimedia.org/wiki/Special:FilePath/Catholic_Priest_praying.jpg";
+    const alt = type === "jesus" ? "Christ Pantocrator icon" : type === "saints" ? "Saint Maron" : "A Catholic priest praying";
+    const blocks = item[2].map(function (part) {
+      return '<article class="reading-block"><h3>' + escapeHtml(part[0]) + '</h3><p class="meaning">' + escapeHtml(part[1]) + '</p></article>';
+    }).join("");
+    setPanel(item[0], '<div class="library-feature"><img src="' + image + '" alt="' + alt + '" loading="lazy"><div><p class="reference">' + type.toUpperCase() + '</p><p class="scripture">' + escapeHtml(item[1]) + '</p></div></div>' + blocks);
+  }
+
   function go(view) {
     document.querySelectorAll(".nav-link").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
     if (view === "readings" || view === "daily") return showDailyReadings();
     if (view === "verse") return showRandomVerse();
     if (view === "reflection") return showReflection();
+    if (view === "explore") { $("#exploreSection").scrollIntoView({ behavior:"smooth", block:"start" }); return; }
+    if (view === "jesus" || view === "saints" || view === "priests") return showLibrary(view);
     panelTitle.textContent = "Begin with Scripture";
     output.innerHTML = `<p class="empty-state">${escapeHtml(translations[settings.language === "ar" ? "ar" : "en"].emptyPrompt)}</p>`;
   }
@@ -192,5 +219,6 @@
 
   const now = new Date();
   $("#todayDate").textContent = now.toLocaleDateString(undefined, { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  if ($("#year")) $("#year").textContent = now.getFullYear();
   applySettings();
 })();
