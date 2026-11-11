@@ -106,7 +106,9 @@
     lastVerse = reference;
     setPanel(settings.language === "ar" ? "آية من الكتاب المقدّس" : "A verse from Scripture", `<p class="loading">✝ Loading Scripture… / جارٍ تحميل الآية…</p>`);
     try {
-      const data = await fetchJson(`/.netlify/functions/bible-verse?reference=${encodeURIComponent(reference)}`);
+      const bundle = await fetchJson("./data/bible-verses.json");
+      const data = bundle.verses?.[reference];
+      if (!data || (!data.english && !data.arabic)) throw new Error("This verse is not available in the latest Scripture data.");
       const meaning = window.BOT_DATA.meanings[reference] || {
         en: "Take a moment to pray with this passage and consider how it speaks to your day.",
         ar: "خذ لحظة للصلاة مع هذا المقطع، وتأمّل كيف يخاطب يومك."
@@ -130,7 +132,7 @@
   async function showDailyReadings() {
     setPanel(settings.language === "ar" ? "قراءات اليوم" : "Today's Maronite readings", `<p class="loading">⏳ Fetching OLM readings… / جارٍ جلب القراءات الليتورجية…</p>`);
     try {
-      const data = await fetchJson("/.netlify/functions/daily-readings");
+      const data = await fetchJson("./data/daily-readings.json");
       const blocks = [];
       for (const item of [data.epistle, data.gospel]) {
         if (!item) continue;
@@ -148,7 +150,7 @@
       const color = data.liturgicalColor || "Not detected";
       setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "Liturgical color"}: ${escapeHtml(color)}</p><p class="meaning">Source: <a href="https://www.olm.org.lb/ar/liturgical-calendar" target="_blank" rel="noopener">OLM Maronite Liturgical Calendar</a></p>`);
     } catch (error) {
-      setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">Check the Netlify function deployment and try again.</p>`);
+      setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">The latest readings could not be loaded. Please try again later.</p>`);
     }
   }
 
