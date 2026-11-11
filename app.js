@@ -211,6 +211,8 @@
   }
 
   document.addEventListener("click", event => {
+    const prayerCategory = event.target.closest("[data-prayer-category]");
+    if (prayerCategory) { showPrayers(prayerCategory.dataset.prayerCategory); return; }
     const action = event.target.closest("[data-action]");
     if (action) go(action.dataset.action);
     const nav = event.target.closest("[data-view]");
