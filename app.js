@@ -5,6 +5,7 @@
   const settingsDialog = $("#settingsDialog");
   const defaults = { language: "both", fontSize: "normal", theme: "midnight" };
   let settings = { ...defaults, ...readSettings() };
+  if (!["midnight", "daylight"].includes(settings.theme)) settings.theme = "midnight";
   let lastVerse = "";
   let lastReflection = -1;
 
