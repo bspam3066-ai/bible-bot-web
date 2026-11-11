@@ -3,7 +3,7 @@
   const output = $("#output");
   const panelTitle = $("#panelTitle");
   const settingsDialog = $("#settingsDialog");
-  const defaults = { language: "both", fontSize: "normal", theme: "parchment" };
+  const defaults = { language: "both", fontSize: "normal", theme: "midnight" };
   let settings = { ...defaults, ...readSettings() };
   let lastVerse = "";
   let lastReflection = -1;
@@ -53,7 +53,7 @@
   }
   function saveSettings() { localStorage.setItem("verbum-settings", JSON.stringify(settings)); }
   function applySettings() {
-    document.body.classList.toggle("theme-night", settings.theme === "night");
+    document.body.classList.toggle("theme-day", settings.theme === "daylight");
     document.body.classList.toggle("lang-ar", settings.language === "ar");
     const sizes = { small: ".88", normal: "1", large: "1.15", xlarge: "1.3" };
     document.documentElement.style.setProperty("--reading-scale", sizes[settings.fontSize] || "1");
@@ -167,6 +167,7 @@
     document.querySelectorAll(".nav-link").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
     if (view === "readings" || view === "daily") return showDailyReadings();
     if (view === "verse") return showRandomVerse();
+    if (view === "saints" || view === "priest") { window.dispatchEvent(new CustomEvent("verbum:view", { detail: view })); return; }
     if (view === "reflection") return showReflection();
     panelTitle.textContent = "Begin with Scripture";
     output.innerHTML = `<p class="empty-state">${escapeHtml(translations[settings.language === "ar" ? "ar" : "en"].emptyPrompt)}</p>`;
