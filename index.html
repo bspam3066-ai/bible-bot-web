@@ -22,6 +22,7 @@
       <button class="nav-link" data-view="reflection" data-i18n="navReflection">Reflection</button>
       <button class="nav-link" data-view="saints" data-i18n="navSaints">Saints</button>
       <button class="nav-link" data-view="priest" data-i18n="navPriest">Church life</button>
+      <button class="nav-link" data-view="prayers" data-i18n="navPrayers">Prayers</button>
     </nav>
     <div class="header-actions"><button class="icon-button" id="languageButton" type="button" aria-label="Change language">EN / ع</button><button class="icon-button" id="settingsButton" type="button" aria-label="Settings">☼</button></div>
   </header>
@@ -49,6 +50,7 @@
       <article class="feature-card daily-card"><div class="card-topline"><span class="card-index">01 / TODAY</span><span class="card-symbol">✳</span></div><h3 data-i18n="dailyTitle">The daily readings</h3><p data-i18n="dailyDescription">The Gospel, Epistle and liturgical color from the Maronite calendar.</p><button class="text-button" data-action="daily" data-i18n="openReadings">Explore today's readings ↗</button></article>
       <article class="feature-card verse-card"><div class="card-topline"><span class="card-index">02 / SCRIPTURE</span><span class="card-symbol">✧</span></div><h3 data-i18n="verseTitle">A verse to carry</h3><p data-i18n="verseDescription">A passage from Scripture in English and Arabic, with a thought to keep.</p><button class="text-button" data-action="verse" data-i18n="findVerse">Find a verse ↗</button></article>
       <article class="feature-card reflection-card"><div class="card-topline"><span class="card-index">03 / REFLECTION</span><span class="card-symbol">◌</span></div><h3 data-i18n="reflectionTitle">A daily reflection</h3><p data-i18n="reflectionDescription">Small reflections and prayers for the ordinary moments of life.</p><button class="text-button" data-action="reflection" data-i18n="readReflection">Take a moment ↗</button></article>
+      <article class="feature-card prayer-card"><div class="card-topline"><span class="card-index">04 / PRAYER</span><span class="card-symbol">✝</span></div><h3 data-i18n="prayersTitle">Prayer library</h3><p data-i18n="prayersDescription">Traditional prayers and daily devotions in Arabic and English.</p><button class="text-button" data-view="prayers" data-i18n="openPrayers">Open the prayer library ↗</button></article>
     </section>
 
     <section class="spotlight-grid">
@@ -71,5 +73,5 @@
   <footer class="site-footer"><a class="footer-brand" href="./">VERBUM DEI</a><p data-i18n="footer">Made to help you read, reflect and grow in faith.</p><small class="disclaimer" data-i18n="disclaimer">Scripture text is provided by Bible SuperSearch. Daily liturgical information is sourced from OLM.</small><small class="credits">Photography credits: Alexandre Bida (Public Domain) · Edgar Beltrán / The Pillar (CC BY-SA 4.0)</small></footer>
 </div>
 <dialog id="settingsDialog" class="settings-dialog"><form method="dialog" class="settings-form"><div class="dialog-heading"><div><p class="section-kicker" data-i18n="settingsKicker">MAKE IT YOURS</p><h2 data-i18n="settingsTitle">Settings</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div><label for="displayLanguage" data-i18n="languageLabel">Display language</label><select id="displayLanguage"><option value="both">English + العربية</option><option value="en">English</option><option value="ar">العربية</option></select><label for="fontSize" data-i18n="fontLabel">Reading text size</label><select id="fontSize"><option value="small">Small</option><option value="normal">Normal</option><option value="large">Large</option><option value="xlarge">Extra large</option></select><label for="colorTheme" data-i18n="themeLabel">Color mood</label><select id="colorTheme"><option value="midnight">Midnight & copper</option><option value="daylight">Daylight</option></select><button class="primary-button" id="saveSettings" value="save" data-i18n="saveSettings">Save settings</button></form></dialog>
-<script src="./botData.js" defer></script><script src="./app.js" defer></script><script src="./saints.js" defer></script>
+<script src="./botData.js" defer></script><script src="./prayers.js" defer></script><script src="./app.js" defer></script><script src="./saints.js" defer></script>
 </body></html>
