@@ -5,7 +5,6 @@
   // Choose a different Jesus artwork whenever the site is opened.
   const jesusArtwork = [
     { file: "Eugène_Delacroix_(1798-1863)_-_Christ_on_the_Cross_-_NG6433_-_National_Gallery.jpg", credit: "Eugène Delacroix · Christ on the Cross · Public Domain" },
-    { file: "Jesus_Christ_-_Hofmann.jpg", credit: "Heinrich Hofmann · Public Domain" },
     
     { file: "Jesuschrist.jpg", credit: "Hanna Asfours · Public Domain" },
     { file: "Jesus_ascending_to_heaven.jpg", credit: "John Singleton Copley · Public Domain" }
