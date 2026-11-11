@@ -268,25 +268,55 @@
       <div class="feature-actions"><button class="quiet-button" data-rosary-reset>Restart</button><button class="primary-button" data-rosary-next>${index===steps.length-1?"Finish":"Next prayer →"}</button></div>
       <p class="meaning">The guide helps you keep your place; pray the full traditional texts aloud or from your own prayer book. / هذا الدليل يساعدك على متابعة ترتيب الصلاة.</p>`);
   }
+  // Quiz bank: add carefully checked, individually written questions here.
+  // A visitor's used-question history is saved locally on their device.
   const quizQuestions=[
-    {q:"Where was Jesus born?",a:["Nazareth","Bethlehem","Jerusalem"],correct:1,why:"The Gospels of Matthew and Luke name Bethlehem as the place of Jesus’ birth.",ar:"تذكر إنجيلا متّى ولوقا أنّ يسوع وُلد في بيت لحم."},
-    {q:"Who baptised Jesus in the Jordan?",a:["Peter","John the Baptist","James"],correct:1,why:"John the Baptist baptised Jesus in the Jordan River.",ar:"عمّد يوحنّا المعمدان يسوع في نهر الأردن."},
-    {q:"What is the first book of the Bible?",a:["Genesis","Psalms","Exodus"],correct:0,why:"Genesis is the opening book of the Bible.",ar:"سفر التكوين هو السفر الأوّل في الكتاب المقدّس."},
-    {q:"Which apostle is traditionally associated with the keys of the Kingdom?",a:["Peter","Thomas","Andrew"],correct:0,why:"Jesus gives Peter the keys in Matthew 16:19.",ar:"يرتبط بطرس بمفاتيح الملكوت في متّى 16:19."},
-    {q:"What is the central celebration of the Eucharist?",a:["The Mass / Divine Liturgy","The baptismal service","The funeral rite"],correct:0,why:"Catholics celebrate the Eucharist in the Mass; Eastern Catholics also call it the Divine Liturgy.",ar:"يحتفل الكاثوليك بالقربان المقدّس في القداس الإلهي."},
-    {q:"Which Lebanese saint is known as the hermit of Annaya?",a:["Saint Rafqa","Saint Charbel","Saint Nimatullah"],correct:1,why:"Saint Charbel lived as a monk and hermit in Annaya.",ar:"عاش القديس شربل راهبًا وناسكًا في عنايا."},
-    {q:"How many Gospels are in the New Testament?",a:["Two","Four","Seven"],correct:1,why:"The four canonical Gospels are Matthew, Mark, Luke and John.",ar:"الأناجيل الأربعة هي متّى ومرقس ولوقا ويوحنّا."},
-    {q:"What season prepares the Church for Christmas?",a:["Lent","Advent","Easter"],correct:1,why:"Advent is the season of preparation and expectation before Christmas.",ar:"زمن المجيء هو زمن الاستعداد وانتظار عيد الميلاد."},
-    {q:"Where is the Qadisha Valley?",a:["North Lebanon","South Lebanon","Beirut"],correct:0,why:"The Qadisha Valley is in northern Lebanon and is deeply connected with Maronite monastic history.",ar:"يقع وادي قاديشا في شمال لبنان ويرتبط بتاريخ الرهبنة المارونية."},
-    {q:"What does ‘Alleluia’ mean?",a:["Peace be with you","Praise the Lord","Go in peace"],correct:1,why:"Alleluia comes from Hebrew and means ‘Praise the Lord’.",ar:"هللويا كلمة من أصل عبري تعني سبّحوا الرب."}
+    {id:"b001",q:"Where was Jesus born?",a:["Nazareth","Bethlehem","Jerusalem"],correct:1,why:"The Gospels of Matthew and Luke name Bethlehem as the place of Jesus’ birth.",ar:"تذكر إنجيلا متّى ولوقا أنّ يسوع وُلد في بيت لحم."},
+    {id:"b002",q:"Who baptised Jesus in the Jordan?",a:["Peter","John the Baptist","James"],correct:1,why:"John the Baptist baptised Jesus in the Jordan River.",ar:"عمّد يوحنّا المعمدان يسوع في نهر الأردن."},
+    {id:"b003",q:"What is the first book of the Bible?",a:["Genesis","Psalms","Exodus"],correct:0,why:"Genesis is the opening book of the Bible.",ar:"سفر التكوين هو السفر الأوّل في الكتاب المقدّس."},
+    {id:"b004",q:"Which apostle is traditionally associated with the keys of the Kingdom?",a:["Peter","Thomas","Andrew"],correct:0,why:"Jesus speaks of giving Peter the keys of the Kingdom in Matthew 16:19.",ar:"يتحدّث يسوع عن إعطاء بطرس مفاتيح الملكوت في متّى 16:19."},
+    {id:"b005",q:"What is the central celebration of the Eucharist?",a:["The Mass / Divine Liturgy","The baptismal service","The funeral rite"],correct:0,why:"Catholics celebrate the Eucharist in the Mass; Eastern Catholics also call it the Divine Liturgy.",ar:"يحتفل الكاثوليك بالقربان المقدّس في القداس الإلهي."},
+    {id:"b006",q:"Which Lebanese saint is known as the hermit of Annaya?",a:["Saint Rafqa","Saint Charbel","Saint Nimatullah"],correct:1,why:"Saint Charbel lived as a monk and hermit at Annaya in Lebanon.",ar:"عاش القديس شربل راهبًا وناسكًا في عنايا في لبنان."},
+    {id:"b007",q:"How many Gospels are in the New Testament?",a:["Two","Four","Seven"],correct:1,why:"The four canonical Gospels are Matthew, Mark, Luke and John.",ar:"الأناجيل الأربعة هي متّى ومرقس ولوقا ويوحنّا."},
+    {id:"b008",q:"What season prepares the Church for Christmas?",a:["Lent","Advent","Easter"],correct:1,why:"Advent is the season of preparation and expectation before Christmas.",ar:"زمن المجيء هو زمن الاستعداد وانتظار عيد الميلاد."},
+    {id:"b009",q:"Where is the Qadisha Valley?",a:["North Lebanon","South Lebanon","Beirut"],correct:0,why:"The Qadisha Valley is in northern Lebanon and is deeply connected with Maronite monastic history.",ar:"يقع وادي قاديشا في شمال لبنان ويرتبط بتاريخ الرهبنة المارونية."},
+    {id:"b010",q:"What does ‘Alleluia’ mean?",a:["Peace be with you","Praise the Lord","Go in peace"],correct:1,why:"Alleluia comes from Hebrew and means ‘Praise the Lord’.",ar:"هللويا كلمة من أصل عبري تعني سبّحوا الرب."},
+    {id:"b011",q:"Who led the Israelites out of Egypt?",a:["Moses","David","Solomon"],correct:0,why:"In Exodus, God calls Moses to lead the Israelites out of slavery in Egypt.",ar:"في سفر الخروج، دعا الله موسى ليقود بني إسرائيل من العبودية في مصر."},
+    {id:"b012",q:"Which disciple betrayed Jesus?",a:["John","Judas Iscariot","Philip"],correct:1,why:"The Gospel accounts identify Judas Iscariot as the disciple who handed Jesus over.",ar:"تذكر الأناجيل يهوذا الإسخريوطي بوصفه التلميذ الذي أسلم يسوع."},
+    {id:"b013",q:"What is the last book of the Bible?",a:["Acts","Revelation","Hebrews"],correct:1,why:"The Book of Revelation is the final book in the Christian Bible.",ar:"سفر الرؤيا هو السفر الأخير في الكتاب المقدّس المسيحي."},
+    {id:"b014",q:"Who was the mother of Jesus?",a:["Martha","Mary","Elizabeth"],correct:1,why:"The Gospels identify Mary as the mother of Jesus.",ar:"تذكر الأناجيل مريم أمًّا ليسوع."},
+    {id:"b015",q:"Which giant did David defeat?",a:["Goliath","Saul","Absalom"],correct:0,why:"First Samuel 17 tells the story of David and Goliath.",ar:"يروي سفر صموئيل الأول 17 قصّة داود وجليات."},
+    {id:"b016",q:"Which Lebanese saint was born in Himlaya in 1832?",a:["Saint Rafqa","Saint Charbel","Saint Maron"],correct:0,why:"Saint Rafqa, born Boutrossieh, was born in Himlaya, Lebanon, in 1832.",ar:"وُلدت القديسة رفقا، واسمها عند الولادة بطرسية، في حميلة سنة 1832."},
+    {id:"b017",q:"In which Lebanese village was Saint Nimatullah al-Hardini born?",a:["Annaya","Hardine","Jrabta"],correct:1,why:"Saint Nimatullah al-Hardini was born in Hardine in northern Lebanon in 1808.",ar:"وُلد القديس نعمة الله الحرديني في بلدة حردين في شمال لبنان سنة 1808."},
+    {id:"b018",q:"Which Lebanese saint was born Youssef Makhlouf?",a:["Saint Charbel","Saint Nimatullah","Saint Rafqa"],correct:0,why:"Saint Charbel was born Youssef Antoun Makhlouf in Bekaa Kafra in 1828.",ar:"وُلد القديس شربل باسم يوسف أنطون مخلوف في بقاعكفرا سنة 1828."},
+    {id:"b019",q:"Which saint was the teacher of Saint Charbel at the Lebanese Maronite Order?",a:["Saint Nimatullah al-Hardini","Saint Francis of Assisi","Saint Anthony of Padua"],correct:0,why:"Saint Nimatullah al-Hardini taught at Kfifan, where Saint Charbel studied.",ar:"علّم القديس نعمة الله الحرديني في كفيفان، حيث درس القديس شربل."},
+    {id:"b020",q:"Where is Saint Rafqa's shrine and monastery associated with her final years?",a:["Jrabta","Annaya","Kfifan"],correct:0,why:"Saint Rafqa spent her final years at the monastery of Saint Joseph in Jrabta.",ar:"أمضت القديسة رفقا سنواتها الأخيرة في دير مار يوسف في جربتا."}
   ];
-  let quizIndex=0,quizScore=0,quizAnswered=false;
+  const QUIZ_ROUND_SIZE=10, QUIZ_HISTORY_KEY="verbum-quiz-used-v1";
+  let quizRound=[],quizIndex=0,quizScore=0,quizAnswered=false;
+  function readUsedQuizIds(){
+    try { const ids=JSON.parse(localStorage.getItem(QUIZ_HISTORY_KEY)||"[]"); return new Set(Array.isArray(ids)?ids:[]); }
+    catch { return new Set(); }
+  }
+  function startQuizRound(){
+    let used=readUsedQuizIds();
+    let available=quizQuestions.filter(q=>!used.has(q.id));
+    // Begin a fresh cycle only after every question in the bank has been used.
+    if(available.length<QUIZ_ROUND_SIZE){used=new Set();available=quizQuestions.slice();}
+    for(let i=available.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[available[i],available[j]]=[available[j],available[i]];}
+    quizRound=available.slice(0,Math.min(QUIZ_ROUND_SIZE,available.length));
+    quizRound.forEach(q=>used.add(q.id));
+    try { localStorage.setItem(QUIZ_HISTORY_KEY,JSON.stringify([...used])); } catch {}
+    quizIndex=0;quizScore=0;quizAnswered=false;
+  }
   function showQuiz(){
-    if(quizIndex>=quizQuestions.length){
-      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>Quiz complete!</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizQuestions.length}</div><p>You got ${quizScore} out of ${quizQuestions.length} correct.</p><button class="primary-button" data-quiz-restart>Play again ↻</button></div>`);return;
+    if(!quizRound.length) startQuizRound();
+    if(quizIndex>=quizRound.length){
+      const used=readUsedQuizIds().size;
+      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>Quiz complete!</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizRound.length}</div><p>You got ${quizScore} out of ${quizRound.length} correct.</p><p class="meaning">${used} of ${quizQuestions.length} questions used in this cycle. Questions will not repeat until the full bank has been played.</p><button class="primary-button" data-quiz-restart>New quiz ↻</button></div>`);return;
     }
-    const q=quizQuestions[quizIndex];
-    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">QUESTION ${quizIndex+1} OF ${quizQuestions.length} · SCORE ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizQuestions.length*100}%"></span></div><article class="quiz-card"><h3>${escapeHtml(q.q)}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${escapeHtml(v)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?escapeHtml(q.why)+" / "+escapeHtml(q.ar):""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizQuestions.length-1?"See result":"Next question →"}</button></article>`);
+    const q=quizRound[quizIndex];
+    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">QUESTION ${quizIndex+1} OF ${quizRound.length} · SCORE ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3>${escapeHtml(q.q)}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${escapeHtml(v)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?escapeHtml(q.why)+" / "+escapeHtml(q.ar):""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?"See result":"Next question →"}</button></article>`);
     if(quizAnswered){const options=output.querySelectorAll("[data-quiz-answer]");options.forEach((b,i)=>{if(i===q.correct)b.classList.add("correct")});}
   }
   const featuredSaints=[
@@ -347,9 +377,9 @@
     if(event.target.closest("[data-rosary-reset]")){rosaryState.phase=0;showRosary();return;}
     if(event.target.closest("[data-rosary-next]")){const total=rosaryStepList().length;rosaryState.phase=rosaryState.phase>=total-1?0:rosaryState.phase+1;showRosary();return;}
     const quizAnswer=event.target.closest("[data-quiz-answer]");
-    if(quizAnswer&&!quizAnswered){const q=quizQuestions[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();const fb=$("#quizFeedback");if(fb)fb.textContent=(Number(quizAnswer.dataset.quizAnswer)===q.correct?"Correct! ":"Not quite. ")+q.why+" / "+q.ar;return;}
+    if(quizAnswer&&!quizAnswered){const q=quizRound[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();const fb=$("#quizFeedback");if(fb)fb.textContent=(Number(quizAnswer.dataset.quizAnswer)===q.correct?"Correct! ":"Not quite. ")+q.why+" / "+q.ar;return;}
     if(event.target.closest("[data-quiz-next]")&&quizAnswered){quizIndex++;quizAnswered=false;showQuiz();return;}
-    if(event.target.closest("[data-quiz-restart]")){quizIndex=0;quizScore=0;quizAnswered=false;showQuiz();return;}
+    if(event.target.closest("[data-quiz-restart]")){startQuizRound();showQuiz();return;}
     if(event.target.closest("[data-calendar-prev]")){calendarMonth--;if(calendarMonth<0){calendarMonth=11;calendarYear--;}showCalendar();return;}
     if(event.target.closest("[data-calendar-next]")){calendarMonth++;if(calendarMonth>11){calendarMonth=0;calendarYear++;}showCalendar();return;}
     const calendarDay=event.target.closest("[data-calendar-day]");
