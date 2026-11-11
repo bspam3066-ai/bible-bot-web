@@ -3,46 +3,47 @@
   const output = $("#output");
   const panelTitle = $("#panelTitle");
   const settingsDialog = $("#settingsDialog");
-  const defaults = { language: "both", fontSize: "normal", theme: "parchment" };
+  const defaults = { language: "both", fontSize: "normal", theme: "light" };
   let settings = { ...defaults, ...readSettings() };
+  if (!["light", "night"].includes(settings.theme)) settings.theme = "light";
   let lastVerse = "";
   let lastReflection = -1;
 
   const translations = {
     en: {
-      navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection",
-      heroEyebrow:"A CATHOLIC SCRIPTURE COMPANION", heroTitle:'Rooted in the Word.<br><em>Guided by faith.</em>',
-      heroSubtitle:"Read the Scriptures, reflect with the Church, and carry the Word into your day.",
-      welcomeKicker:"YOUR DAILY TIME WITH GOD", welcomeTitle:"A moment in the Word",
+      navHome:"Home", navReadings:"Readings", navVerse:"Verse", navReflection:"Reflection", navExplore:"Explore",
+      heroEyebrow:"A QUIETER SPACE FOR WHAT MATTERS", heroTitle:'Make room for<br><em>the Word.</em>', heroCta:"Read today's passages <span>↗</span>", heroNote:"A moment of stillness, every day.", heroMeta:"ROOTED IN SCRIPTURE · OPEN TO EVERYONE",
+      heroSubtitle:"Scripture, daily Maronite readings and thoughtful reflections — gathered in one calm place.",
+      welcomeKicker:"YOUR DAILY PAUSE", welcomeTitle:"A little time, well spent.",
       dailyTag:"LITURGY", dailyTitle:"Today's readings", dailyDescription:"The Gospel, Epistle and liturgical color from the Maronite calendar.",
       openReadings:'Open today’s readings <span>→</span>', verseTag:"SCRIPTURE", verseTitle:"A verse for you",
       verseDescription:"Discover a passage from the Bible in English and Arabic.", findVerse:'Find a verse <span>→</span>',
       reflectionTag:"PRAYER & REFLECTION", reflectionTitle:"Daily reflection",
       reflectionDescription:"A short faith-inspired thought to carry through your day.", readReflection:'Read reflection <span>→</span>',
-      yourReading:"YOUR READING SPACE", welcomePanelTitle:"Begin with Scripture",
-      emptyPrompt:"Choose a section above to begin your time in the Word.",
+      yourReading:"YOUR READING SPACE", welcomePanelTitle:"Begin with Scripture", exploreKicker:"PEOPLE & STORIES", exploreTitle:"Faith is lived.", exploreIntro:"Meet the people and stories that help us understand a life shaped by Christ.", jesusCard:"The life, words and message at the heart of the Gospel.", saintsTitle:"Saints", saintsCard:"Stories of courage, service and a life devoted to God.", priestsTitle:"Priests", priestsCard:"Learn about the vocation of serving and accompanying a community.", discover:"Discover <span>↗</span>",
+      emptyPrompt:"Choose a reading above and take a moment with it.",
       quote:"Your word is a lamp to my feet and a light to my path.",
       footer:"Made to help you read, reflect and grow in faith.",
       disclaimer:"Scripture text is provided by Bible SuperSearch. Daily liturgical information is sourced from OLM.",
-      settingsKicker:"PERSONALIZE YOUR EXPERIENCE", settingsTitle:"Settings", languageLabel:"Display language",
+      settingsKicker:"MAKE IT YOURS", settingsTitle:"Settings", languageLabel:"Language",
       fontLabel:"Reading text size", themeLabel:"Color theme", saveSettings:"Save settings"
     },
     ar: {
-      navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمل",
-      heroEyebrow:"رفيقك في قراءة الكتاب المقدّس", heroTitle:'متجذّرون في الكلمة.<br><em>ومسترشدون بالإيمان.</em>',
-      heroSubtitle:"اقرأ الكتاب المقدّس، وتأمّل مع الكنيسة، واحمل الكلمة معك طوال يومك.",
-      welcomeKicker:"وقتك اليومي مع الله", welcomeTitle:"لحظة مع الكلمة",
+      navHome:"الرئيسية", navReadings:"القراءات", navVerse:"آية", navReflection:"تأمّل", navExplore:"اكتشف",
+      heroEyebrow:"مساحة هادئة لما هو مهمّ", heroTitle:'أفسح مكانًا<br><em>للكلمة.</em>', heroCta:"اقرأ قراءات اليوم <span>↗</span>", heroNote:"لحظة هدوء، كل يوم.", heroMeta:"متجذّر في الكتاب المقدّس · للجميع",
+      heroSubtitle:"الكتاب المقدّس والقراءات المارونية اليومية وتأمّلات تساعدك على عيش الكلمة.",
+      welcomeKicker:"وقفتك اليومية", welcomeTitle:"قليل من الوقت، بعمق أكبر.",
       dailyTag:"الليتورجيا", dailyTitle:"قراءات اليوم", dailyDescription:"الإنجيل والرسالة واللون الليتورجي من الروزنامة المارونية.",
       openReadings:'افتح قراءات اليوم <span>←</span>', verseTag:"الكتاب المقدّس", verseTitle:"آية لك",
       verseDescription:"اكتشف مقطعًا من الكتاب المقدّس بالعربية والإنجليزية.", findVerse:'اكتشف آية <span>←</span>',
       reflectionTag:"صلاة وتأمّل", reflectionTitle:"تأمّل اليوم",
       reflectionDescription:"فكرة قصيرة مستوحاة من الإيمان ترافقك في يومك.", readReflection:'اقرأ التأمّل <span>←</span>',
-      yourReading:"مساحتك الروحية", welcomePanelTitle:"ابدأ بكلمة الله",
-      emptyPrompt:"اختر قسمًا من الأعلى لتبدأ وقتك مع الكلمة.",
+      yourReading:"مساحتك الروحية", welcomePanelTitle:"ابدأ بكلمة الله", exploreKicker:"أشخاص وحكايات", exploreTitle:"الإيمان حياة.", exploreIntro:"تعرّف إلى أشخاص وحكايات تساعدنا على فهم الحياة مع المسيح.", jesusCard:"حياة يسوع وكلماته ورسالته في قلب الإنجيل.", saintsTitle:"القدّيسون", saintsCard:"حكايات شجاعة وخدمة وحياة مكرّسة لله.", priestsTitle:"الكهنة", priestsCard:"تعرّف إلى دعوة الخدمة ومرافقة الجماعة.", discover:"اكتشف <span>↗</span>",
+      emptyPrompt:"اختر قراءة من الأعلى وخذ لحظة للتأمّل فيها.",
       quote:"كلامك مصباح لخطاي ونور لسبيلي.",
       footer:"صُمّم ليساعدك على القراءة والتأمّل والنمو في الإيمان.",
       disclaimer:"نصوص الكتاب المقدّس من Bible SuperSearch. معلومات الروزنامة الليتورجية من OLM.",
-      settingsKicker:"خصّص تجربتك", settingsTitle:"الإعدادات", languageLabel:"لغة العرض",
+      settingsKicker:"خصّص تجربتك", settingsTitle:"الإعدادات", languageLabel:"اللغة",
       fontLabel:"حجم خط القراءة", themeLabel:"ألوان الموقع", saveSettings:"حفظ الإعدادات"
     }
   };
@@ -163,11 +164,38 @@
     setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">🙏 Take a quiet moment to reflect and pray.</p><button class="text-button" data-action="reflection">Another reflection →</button>`);
   }
 
+  function showLibrary(type) {
+    const isArabic = settings.language === "ar";
+    const library = {
+      jesus: {
+        en: ["Jesus Christ", "At the heart of Christian faith is the person of Jesus: his life, teaching, compassion, death and resurrection.", [["The Gospels", "Read the four Gospel accounts and follow the story of Jesus and his teaching."], ["A way of life", "Jesus teaches love of God and neighbour, mercy, forgiveness, humility and care for others."]]],
+        ar: ["يسوع المسيح", "في قلب الإيمان المسيحي شخص يسوع: حياته وتعاليمه ورحمته وموته وقيامته.", [["الأناجيل", "اقرأ روايات الأناجيل الأربعة وتابع حياة يسوع وتعاليمه."], ["أسلوب حياة", "يدعونا يسوع إلى محبة الله والقريب والرحمة والمغفرة والتواضع."]]]
+      },
+      saints: {
+        en: ["Saints", "Saints are remembered as people whose lives offer examples of faith, courage, service and love.", [["Saint Maron", "A Syriac Christian monk and spiritual father whose tradition became central to the Maronite Church."], ["Saint Charbel Makhlouf", "A Lebanese Maronite monk and priest (1828–1898) who lived at Annaya and became known for a life of prayer and simplicity."]]],
+        ar: ["القدّيسون", "نتذكّر القدّيسين كشهود عاشوا الإيمان والشجاعة والخدمة والمحبة.", [["القدّيس مارون", "راهب سرياني مسيحي وأب روحي ارتبطت به جذور التقليد الماروني."], ["القدّيس شربل مخلوف", "راهب وكاهن ماروني لبناني (1828–1898)، عاش في عنايا واشتهر بحياة الصلاة والبساطة."]]]
+      },
+      priests: {
+        en: ["Priests", "In the Catholic Church, priests serve their communities through prayer, teaching, pastoral care and the celebration of the sacraments.", [["A vocation of service", "Priestly ministry is centred on accompanying people, sharing the Gospel and serving the wider community."], ["The Maronite tradition", "Maronite priests serve in parishes and communities shaped by the Syriac Antiochene tradition."]]],
+        ar: ["الكهنة", "يخدم الكهنة في الكنيسة الكاثوليكية جماعاتهم بالصلاة والتعليم والرعاية الروحية والاحتفال بالأسرار.", [["دعوة إلى الخدمة", "تتمحور الخدمة الكهنوتية حول مرافقة الناس وإعلان الإنجيل وخدمة الجماعة."], ["التقليد الماروني", "يخدم الكهنة الموارنة في الرعايا والجماعات ضمن التقليد الأنطاكي السرياني."]]]
+      }
+    };
+    const item = library[type][isArabic ? "ar" : "en"];
+    const image = type === "jesus" ? "https://commons.wikimedia.org/wiki/Special:FilePath/Christ_Pantocrator_icon.jpg" : type === "saints" ? "https://commons.wikimedia.org/wiki/Special:FilePath/Saint_Maron.jpg" : "https://commons.wikimedia.org/wiki/Special:FilePath/Catholic_Priest_praying.jpg";
+    const alt = type === "jesus" ? "Christ Pantocrator icon" : type === "saints" ? "Saint Maron" : "A Catholic priest praying";
+    const blocks = item[2].map(function (part) {
+      return '<article class="reading-block"><h3>' + escapeHtml(part[0]) + '</h3><p class="meaning">' + escapeHtml(part[1]) + '</p></article>';
+    }).join("");
+    setPanel(item[0], '<div class="library-feature"><img src="' + image + '" alt="' + alt + '" loading="lazy"><div><p class="reference">' + type.toUpperCase() + '</p><p class="scripture">' + escapeHtml(item[1]) + '</p></div></div>' + blocks);
+  }
+
   function go(view) {
     document.querySelectorAll(".nav-link").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
     if (view === "readings" || view === "daily") return showDailyReadings();
     if (view === "verse") return showRandomVerse();
     if (view === "reflection") return showReflection();
+    if (view === "explore") { $("#exploreSection").scrollIntoView({ behavior:"smooth", block:"start" }); return; }
+    if (view === "jesus" || view === "saints" || view === "priests") return showLibrary(view);
     panelTitle.textContent = "Begin with Scripture";
     output.innerHTML = `<p class="empty-state">${escapeHtml(translations[settings.language === "ar" ? "ar" : "en"].emptyPrompt)}</p>`;
   }
@@ -192,5 +220,6 @@
 
   const now = new Date();
   $("#todayDate").textContent = now.toLocaleDateString(undefined, { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  if ($("#year")) $("#year").textContent = now.getFullYear();
   applySettings();
 })();
