@@ -1,170 +1,168 @@
 
 import * as cheerio from "cheerio";
 
-const OLM_URL = "https://www.olm.org.lb/ar/liturgical-calendar";
+const OLM_URL = "https://olm.org.lb/ar/liturgical-calendar";
 const BIBLE_API = "https://api.biblesupersearch.com/api";
 
 const BOOKS = {
   "تك": "Genesis", "خر": "Exodus", "لا": "Leviticus",
   "عد": "Numbers", "تث": "Deuteronomy",
   "يش": "Joshua", "قض": "Judges", "را": "Ruth",
-  "1 صم": "1 Samuel", "2 صم": "2 Samuel",
-  "1 مل": "1 Kings", "2 مل": "2 Kings",
-  "1 أخ": "1 Chronicles", "2 أخ": "2 Chronicles",
+  "صم": "Samuel", "مل": "Kings", "أخ": "Chronicles",
   "عز": "Ezra", "نح": "Nehemiah", "طو": "Tobit",
-  "يه": "Judith", "اس": "Esther", "أي": "Job",
-  "مز": "Psalms", "أم": "Proverbs",
-  "جا": "Ecclesiastes", "نش": "Song of Solomon",
-  "حك": "Wisdom", "سي": "Sirach",
+  "يه": "Jude", "اس": "Esther", "أي": "Job",
+  "مز": "Psalms", "أم": "Proverbs", "جا": "Ecclesiastes",
+  "نش": "Song of Solomon", "حك": "Wisdom", "سي": "Sirach",
   "أش": "Isaiah", "إش": "Isaiah", "إر": "Jeremiah",
-  "مرا": "Lamentations", "با": "Baruch",
-  "حز": "Ezekiel", "دا": "Daniel", "هو": "Hosea",
-  "يوئ": "Joel", "عا": "Amos", "عو": "Obadiah",
-  "يون": "Jonah", "مي": "Micah", "نا": "Nahum",
-  "حب": "Habakkuk", "صف": "Zephaniah",
-  "حج": "Haggai", "زك": "Zechariah", "ملا": "Malachi",
-  "مت": "Matthew", "متى": "Matthew", "مر": "Mark",
-  "لو": "Luke", "يو": "John", "أع": "Acts",
-  "رو": "Romans", "1 قور": "1 Corinthians",
-  "2 قور": "2 Corinthians", "غل": "Galatians",
-  "أف": "Ephesians", "في": "Philippians",
-  "كو": "Colossians", "1 تس": "1 Thessalonians",
-  "2 تس": "2 Thessalonians", "1 تم": "1 Timothy",
-  "2 تم": "2 Timothy", "تي": "Titus",
-  "فل": "Philemon", "عب": "Hebrews", "يع": "James",
-  "1 بط": "1 Peter", "2 بط": "2 Peter",
-  "1 يو": "1 John", "2 يو": "2 John",
-  "3 يو": "3 John", "يهود": "Jude", "يه": "Jude",
-  "رؤ": "Revelation"
+  "مرا": "Lamentations", "با": "Baruch", "حز": "Ezekiel",
+  "دا": "Daniel", "هو": "Hosea", "يوئ": "Joel",
+  "عا": "Amos", "عو": "Obadiah", "يون": "Jonah",
+  "مي": "Micah", "نا": "Nahum", "حب": "Habakkuk",
+  "صف": "Zephaniah", "حج": "Haggai", "زك": "Zechariah",
+  "ملا": "Malachi", "مت": "Matthew", "متى": "Matthew",
+  "مر": "Mark", "لو": "Luke", "يو": "John",
+  "أع": "Acts", "رو": "Romans", "غل": "Galatians",
+  "أف": "Ephesians", "في": "Philippians", "كو": "Colossians",
+  "تس": "Thessalonians", "تم": "Timothy",
+  "تي": "Titus", "فل": "Philemon", "عب": "Hebrews",
+  "يع": "James", "بط": "Peter", "رؤ": "Revelation"
 };
 
-const BOOK_PATTERN = Object.keys(BOOKS)
-  .sort((a, b) => b.length - a.length)
-  .map(book => book.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-  .join("|");
-
 function normalizeDigits(value) {
-  return String(value).replace(/[٠-٩]/g, digit =>
-    "٠١٢٣٤٥٦٧٨٩".indexOf(digit)
+  return String(value).replace(/[٠-٩]/g, d =>
+    "٠١٢٣٤٥٦٧٨٩".indexOf(d)
   );
 }
 
+function normalizeArabic(value) {
+  return normalizeDigits(value)
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function preparePage(html) {
-  const formattedHtml = html
+  const formatted = html
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(
       /<\/(p|div|li|h[1-6]|section|article|tr)>/gi,
       "\n"
     );
 
-  const $ = cheerio.load(formattedHtml);
+  const $ = cheerio.load(formatted);
 
   $("script, style, noscript, svg").remove();
 
-  return {
-    $,
-    text: $("body").text()
-      .replace(/\u00a0/g, " ")
-      .replace(/\r/g, "\n")
-      .replace(/[ \t]+/g, " ")
-      .replace(/\n\s*\n+/g, "\n")
-      .trim()
-  };
-}
+  const text = $("body").text()
+    .replace(/\u00a0/g, " ")
+    .replace(/\r/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n\s*\n+/g, "\n")
+    .trim();
 
-function makeReferenceRegex() {
-  return new RegExp(
-    `(^|[^\\p{L}])(${BOOK_PATTERN})\\s*(\\d+)\\s*[/／]\\s*(\\d+)\\s*(?:[-–—]\\s*(\\d+))?`,
-    "giu"
-  );
+  return { $, text };
 }
 
 function findReference(text) {
-  const normalized = normalizeDigits(text)
-    .replace(/[–—]/g, "-")
-    .replace(/\s+/g, " ");
+  const normalized = normalizeArabic(text);
 
-  const regex = makeReferenceRegex();
+  const keys = Object.keys(BOOKS)
+    .filter(key => !["صم", "مل", "أخ", "قور", "تس", "تم", "بط"].includes(key))
+    .sort((a, b) => b.length - a.length);
+
+  const alternatives = keys
+    .map(key => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+
+  const regex = new RegExp(
+    `(^|[^\\p{L}])(${alternatives})\\s*(\\d+)\\s*/\\s*(\\d+)\\s*(?:-\\s*(\\d+))?`,
+    "u"
+  );
+
   const match = regex.exec(normalized);
-
   if (!match) return null;
 
   const book = BOOKS[match[2]];
-
   if (!book) return null;
-
-  const start = match.index + match[1].length;
-  const end = regex.lastIndex;
 
   return {
     raw: match[0].slice(match[1].length).trim(),
     english: `${book} ${match[3]}:${match[4]}${
       match[5] ? "-" + match[5] : ""
     }`,
-    start,
-    end
+    end: regex.lastIndex
   };
 }
 
 function findReadingSection(text, labels, nextLabels) {
+  const normalized = normalizeArabic(text);
+  const normalizedLabels = labels.map(normalizeArabic);
+  const normalizedNext = nextLabels.map(normalizeArabic);
+
   const positions = [];
 
-  for (const label of labels) {
-    let position = 0;
+  for (const label of normalizedLabels) {
+    let pos = 0;
 
-    while ((position = text.indexOf(label, position)) !== -1) {
-      positions.push(position);
-      position += label.length;
+    while ((pos = normalized.indexOf(label, pos)) !== -1) {
+      positions.push(pos);
+      pos += label.length;
     }
   }
 
   positions.sort((a, b) => a - b);
 
   for (const start of positions) {
-    const nextPosition = nextLabels
-      .flatMap(label => {
-        const position = text.indexOf(label, start + 1);
-        return position === -1 ? [] : [position];
-      })
-      .sort((a, b) => a - b)[0];
+    const possibleEnds = normalizedNext
+      .map(label => normalized.indexOf(label, start + 1))
+      .filter(pos => pos !== -1);
 
-    const end = nextPosition ?? text.length;
-    const section = text.slice(start, end);
+    const end = possibleEnds.length
+      ? Math.min(...possibleEnds)
+      : normalized.length;
 
+    const section = normalized.slice(start, end);
     const reference = findReference(section);
 
-    if (reference) {
-      const localReferenceEnd = reference.end;
-      let reading = section.slice(localReferenceEnd).trim();
+    if (!reference) continue;
 
-      // Remove OLM's quoted title, which repeats the reference.
-      reading = reading.replace(
-        /^[“"«][^”"»]*[”"»]\s*/u,
-        ""
-      );
+    let reading = section.slice(reference.end).trim();
 
-      reading = reading
-        .replace(/^[\s:،؛.!؟]+/, "")
-        .trim();
+    // Remove the quoted heading that repeats the reference.
+    reading = reading.replace(
+      /^[“"«][^”"»]*[”"»]\s*/u,
+      ""
+    );
 
-      return {
-        reference,
-        reading
-      };
-    }
+    reading = reading
+      .replace(/^[\s:،؛.!؟]+/, "")
+      .trim();
+
+    return {
+      reference,
+      reading
+    };
   }
 
   return null;
 }
 
 function findMetadata(text, labels) {
+  const normalized = normalizeArabic(text);
+
   for (const label of labels) {
-    const index = text.indexOf(label);
+    const key = normalizeArabic(label);
+    const index = normalized.indexOf(key);
 
     if (index === -1) continue;
 
-    const rest = text.slice(index + label.length);
-    const value = rest.split("\n")[0].trim();
+    const value = normalized
+      .slice(index + key.length)
+      .split("\n")[0]
+      .trim();
 
     if (value) return value;
   }
@@ -190,7 +188,7 @@ async function getEnglishPassage(reference) {
 
   if (!Array.isArray(verses)) return "";
 
-  return verses.map(verse => verse.text).join(" ");
+  return verses.map(verse => verse.text || "").join(" ");
 }
 
 async function enrichReading(type, section) {
@@ -207,18 +205,22 @@ async function enrichReading(type, section) {
       section.reference.english
     );
   } catch (error) {
-    console.error(`English translation failed for ${type}:`, error);
+    console.error(`English translation failed (${type}):`, error);
   }
 
   return item;
 }
 
 export default async () => {
+  let debug = {};
+
   try {
     const response = await fetch(OLM_URL, {
+      redirect: "follow",
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; VerbumDei/1.0)",
-        "Accept": "text/html,application/xhtml+xml"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "ar,en-US;q=0.9,en;q=0.8"
       }
     });
 
@@ -229,28 +231,39 @@ export default async () => {
     const html = await response.text();
     const { $, text } = preparePage(html);
 
+    debug = {
+      finalUrl: response.url,
+      contentType: response.headers.get("content-type"),
+      title: $("title").text(),
+      pageLength: text.length,
+      preview: text.slice(0, 2500),
+      scripts: $("script[src]")
+        .map((_, el) => $(el).attr("src"))
+        .get()
+        .slice(0, 15)
+    };
+
     const epistleSection = findReadingSection(
       text,
       ["الرسالة", "رسالة"],
-      ["الإنجيل", "إنجيل", "اللون الليتورجي"]
+      ["الإنجيل", "انجيل", "اللون الليتورجي"]
     );
 
     const gospelSection = findReadingSection(
       text,
-      ["الإنجيل", "إنجيل"],
+      ["الإنجيل", "انجيل"],
       ["اللون الليتورجي", "الرسالة", "رسالة"]
     );
 
     if (!epistleSection || !gospelSection) {
-      console.error("OLM parsing failed", {
-        title: $("title").text(),
-        pageLength: text.length,
-        preview: text.slice(0, 1500)
-      });
+      console.error("OLM readings not found:", debug);
 
-      throw new Error(
-        "OLM readings were not found in the downloaded page. The page may require JavaScript or its layout may have changed."
-      );
+      return Response.json({
+        error: "The readings were not found in the HTML downloaded from OLM.",
+        diagnostic: debug
+      }, {
+        status: 502
+      });
     }
 
     const [epistle, gospel] = await Promise.all([
@@ -277,10 +290,11 @@ export default async () => {
     });
 
   } catch (error) {
-    console.error("Daily readings function error:", error);
+    console.error("Daily readings error:", error);
 
     return Response.json({
-      error: error.message || "Unable to load OLM readings."
+      error: error.message || "Unable to load OLM readings.",
+      diagnostic: debug
     }, {
       status: 502
     });
