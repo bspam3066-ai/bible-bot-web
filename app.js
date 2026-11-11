@@ -123,7 +123,7 @@
         : settings.language === "ar"
           ? `<p class="meaning arabic" dir="rtl">${escapeHtml(meaning.ar)}</p>`
           : `<div class="two-language"><p class="meaning">${escapeHtml(meaning.en)}</p><p class="meaning arabic" dir="rtl">${escapeHtml(meaning.ar)}</p></div>`;
-      setPanel(reference, `<article class="reading-block"><div class="reference">${escapeHtml(reference)}</div>${scripture}</article><h3>Meaning & reflection / المعنى والتأمّل</h3>${meaningHtml}`);
+      setPanel(reference, `<article class="reading-block"><div class="reference">${escapeHtml(reference)}</div>${scripture}</article><h3>Meaning & reflection / المعنى والتأمّل</h3>${meaningHtml}<div class="inline-refresh-wrap"><button class="primary-button" data-action="verse">${settings.language === "ar" ? "آية جديدة" : "Another Bible verse"} ↻</button></div>`);
     } catch (error) {
       setPanel("Bible verse", `<p class="error-message">Could not load the complete verse. ${escapeHtml(error.message)}</p><p>${escapeHtml(reference)}</p><button class="primary-button" data-action="verse">Try another verse</button>`);
     }
@@ -163,7 +163,7 @@
       : settings.language === "ar"
         ? `<p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p>`
         : `<div class="two-language"><p class="scripture">${escapeHtml(item.en)}</p><p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p></div>`;
-    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">🙏 Take a quiet moment to reflect and pray.</p><button class="text-button" data-action="reflection">Another reflection →</button>`);
+    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">🙏 Take a quiet moment to reflect and pray.</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${settings.language === "ar" ? "رسالة جديدة من الله" : "Another message from God"} ↻</button></div>`);
   }
 
 
