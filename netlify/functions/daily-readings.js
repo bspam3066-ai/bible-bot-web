@@ -1,4 +1,4 @@
-l
+
 import * as cheerio from "cheerio";
 
 const OLM_URL = "https://www.olm.org.lb/ar/liturgical-calendar";
