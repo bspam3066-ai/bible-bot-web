@@ -390,7 +390,7 @@
     quizIndex=0;quizScore=0;quizAnswered=false;
   }
   async function translateQuizText(value){
-    const key="verbum-quiz-ar-v1";
+    const key="verbum-quiz-ar-v2";
     let cache={};try{cache=JSON.parse(localStorage.getItem(key)||"{}");}catch{}
     if(cache[value]) return cache[value];
     // Try Google's lightweight translator first, then MyMemory as a fallback.
@@ -431,9 +431,9 @@
       const translated=await Promise.all([translateQuizText(q.q),...q.a.map(translateQuizText)]);
       qAr=translated[0];answersAr=translated.slice(1);
     }
-    const question=lang==="ar"?(qAr||q.q):lang==="both"?`${escapeHtml(q.q)}${qAr?`<p class="arabic" lang="ar" dir="rtl">${escapeHtml(qAr)}</p>`:""}`:q.q;
-    const answerLabel=(v,i)=>lang==="ar"?(answersAr[i]||v):lang==="both"?`${escapeHtml(v)}${answersAr[i]?`<span class="arabic" lang="ar" dir="rtl">${escapeHtml(answersAr[i])}</span>`:""}`:escapeHtml(v);
-    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">${lang==="ar"?"السؤال":"QUESTION"} ${quizIndex+1} / ${quizRound.length} · ${lang==="ar"?"النتيجة":"SCORE"} ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3 ${lang==="ar"?'class="arabic" dir="rtl"':""}>${question}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${answerLabel(v,i)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?(lang==="en"?escapeHtml(q.why):escapeHtml(q.ar)): ""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?(lang==="ar"?"عرض النتيجة":"See result"):(lang==="ar"?"السؤال التالي ←":"Next question →")}</button></article>`);
+    const question=lang==="ar"?(qAr||"تعذّرت ترجمة هذا السؤال. يُرجى إعادة المحاولة بعد التأكّد من الاتصال بالإنترنت."):lang==="both"?`${escapeHtml(q.q)}${qAr?`<p class="arabic" lang="ar" dir="rtl">${escapeHtml(qAr)}</p>`:""}`:q.q;
+    const answerLabel=(v,i)=>lang==="ar"?(answersAr[i]||"تعذّرت ترجمة هذا الخيار"):lang==="both"?`${escapeHtml(v)}${answersAr[i]?`<span class="arabic" lang="ar" dir="rtl">${escapeHtml(answersAr[i])}</span>`:""}`:escapeHtml(v);
+    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">${lang==="ar"?"السؤال":"QUESTION"} ${quizIndex+1} / ${quizRound.length} · ${lang==="ar"?"النتيجة":"SCORE"} ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3 ${lang==="ar"?'class="arabic" dir="rtl"':""}>${question}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${answerLabel(v,i)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?(lang==="en"?escapeHtml(q.why):escapeHtml(q.ar||"أحسنت! راجع الإجابة الصحيحة أعلاه.")): ""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?(lang==="ar"?"عرض النتيجة":"See result"):(lang==="ar"?"السؤال التالي ←":"Next question →")}</button></article>`);
     if(quizAnswered){const options=output.querySelectorAll("[data-quiz-answer]");options.forEach((b,i)=>{if(i===q.correct)b.classList.add("correct")});}
   }
   const featuredSaints=[
@@ -494,7 +494,7 @@
     if(event.target.closest("[data-rosary-reset]")){rosaryState.phase=0;showRosary();return;}
     if(event.target.closest("[data-rosary-next]")){const total=rosaryStepList().length;rosaryState.phase=rosaryState.phase>=total-1?0:rosaryState.phase+1;showRosary();return;}
     const quizAnswer=event.target.closest("[data-quiz-answer]");
-    if(quizAnswer&&!quizAnswered){const q=quizRound[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();const fb=$("#quizFeedback");if(fb)fb.textContent=(Number(quizAnswer.dataset.quizAnswer)===q.correct?"Correct! ":"Not quite. ")+q.why+" / "+q.ar;return;}
+    if(quizAnswer&&!quizAnswered){const q=quizRound[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();return;}
     if(event.target.closest("[data-quiz-next]")&&quizAnswered){quizIndex++;quizAnswered=false;showQuiz();return;}
     if(event.target.closest("[data-quiz-restart]")){startQuizRound();showQuiz();return;}
     if(event.target.closest("[data-calendar-prev]")){calendarMonth--;if(calendarMonth<0){calendarMonth=11;calendarYear--;}showCalendar();return;}
