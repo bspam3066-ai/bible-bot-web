@@ -389,14 +389,37 @@
     try { localStorage.setItem(QUIZ_HISTORY_KEY,JSON.stringify([...used])); } catch {}
     quizIndex=0;quizScore=0;quizAnswered=false;
   }
-  function showQuiz(){
+  async function translateQuizText(value){
+    const key="verbum-quiz-ar-v1";
+    let cache={};try{cache=JSON.parse(localStorage.getItem(key)||"{}");}catch{}
+    if(cache[value]) return cache[value];
+    try{
+      const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q="+encodeURIComponent(value);
+      const response=await fetch(url);if(!response.ok)throw new Error("Translation unavailable");
+      const data=await response.json();
+      const translated=(data[0]||[]).map(part=>part[0]||"").join("").trim();
+      if(!translated)throw new Error("Empty translation");
+      cache[value]=translated;try{localStorage.setItem(key,JSON.stringify(cache));}catch{}
+      return translated;
+    }catch{return "";}
+  }
+  async function showQuiz(){
     if(!quizRound.length) startQuizRound();
     if(quizIndex>=quizRound.length){
       const used=readUsedQuizIds().size;
-      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>Quiz complete!</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizRound.length}</div><p>You got ${quizScore} out of ${quizRound.length} correct.</p><p class="meaning">${used} of ${quizQuestions.length} questions used in this cycle. Questions will not repeat until the full bank has been played.</p><button class="primary-button" data-quiz-restart>New quiz ↻</button></div>`);return;
+      const ar=settings.language!=="en";
+      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>${settings.language==="ar"?"اكتملت المسابقة!":"Quiz complete!"}</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizRound.length}</div><p>${settings.language==="ar"?"أجبت إجابة صحيحة عن":"You got"} ${quizScore} ${settings.language==="ar"?"من أصل":"out of"} ${quizRound.length}.</p><p class="meaning">${used} / ${quizQuestions.length} · ${ar?"سؤالًا استُخدم في هذه الدورة. لن تتكرّر الأسئلة حتى تُستعمل المجموعة كاملة.":"questions used in this cycle. Questions will not repeat until the full bank has been played."}</p><button class="primary-button" data-quiz-restart>${settings.language==="ar"?"مسابقة جديدة ↻":"New quiz ↻"}</button></div>`);return;
     }
-    const q=quizRound[quizIndex];
-    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">QUESTION ${quizIndex+1} OF ${quizRound.length} · SCORE ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3>${escapeHtml(q.q)}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${escapeHtml(v)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?escapeHtml(q.why)+" / "+escapeHtml(q.ar):""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?"See result":"Next question →"}</button></article>`);
+    const q=quizRound[quizIndex], lang=settings.language;
+    let qAr="", answersAr=[];
+    if(lang!=="en"){
+      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="loading">Preparing Arabic questions… / جارٍ تحضير الأسئلة العربية…</p>`);
+      const translated=await Promise.all([translateQuizText(q.q),...q.a.map(translateQuizText)]);
+      qAr=translated[0];answersAr=translated.slice(1);
+    }
+    const question=lang==="ar"?(qAr||q.q):lang==="both"?`${escapeHtml(q.q)}${qAr?`<p class="arabic" lang="ar" dir="rtl">${escapeHtml(qAr)}</p>`:""}`:q.q;
+    const answerLabel=(v,i)=>lang==="ar"?(answersAr[i]||v):lang==="both"?`${escapeHtml(v)}${answersAr[i]?`<span class="arabic" lang="ar" dir="rtl">${escapeHtml(answersAr[i])}</span>`:""}`:escapeHtml(v);
+    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">${lang==="ar"?"السؤال":"QUESTION"} ${quizIndex+1} / ${quizRound.length} · ${lang==="ar"?"النتيجة":"SCORE"} ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3 ${lang==="ar"?'class="arabic" dir="rtl"':""}>${question}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${answerLabel(v,i)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?(lang==="en"?escapeHtml(q.why):escapeHtml(q.ar)): ""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?(lang==="ar"?"عرض النتيجة":"See result"):(lang==="ar"?"السؤال التالي ←":"Next question →")}</button></article>`);
     if(quizAnswered){const options=output.querySelectorAll("[data-quiz-answer]");options.forEach((b,i)=>{if(i===q.correct)b.classList.add("correct")});}
   }
   const featuredSaints=[
