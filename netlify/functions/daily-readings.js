@@ -42,24 +42,37 @@ function htmlToText(html) {
 }
 
 async function getEnglishPassage(reference) {
-  const url = new URL(BIBLE_API);
+  // Prefer the World English Bible. If it has no text for a passage,
+  // fall back to the public-domain King James Version.
+  const versions = [
+    { module: "web", name: "World English Bible" },
+    { module: "kjv", name: "King James Version" }
+  ];
 
-  url.searchParams.set("bible", "web");
-  url.searchParams.set("reference", reference);
-  url.searchParams.set("data_format", "minimal");
+  for (const version of versions) {
+    try {
+      const url = new URL(BIBLE_API);
+      url.searchParams.set("bible", version.module);
+      url.searchParams.set("reference", reference);
+      url.searchParams.set("data_format", "minimal");
 
-  const response = await fetch(url);
+      const response = await fetch(url);
+      if (!response.ok) continue;
 
-  if (!response.ok) {
-    throw new Error(`Bible API returned ${response.status}`);
+      const payload = await response.json();
+      if (payload.errors?.length) continue;
+
+      const verses = payload.results?.[version.module];
+      if (!Array.isArray(verses) || !verses.length) continue;
+
+      const text = verses.map(verse => verse.text || "").filter(Boolean).join(" ").trim();
+      if (text) return { text, version: version.name };
+    } catch (error) {
+      console.error(`Could not load ${version.name} for ${reference}:`, error);
+    }
   }
 
-  const payload = await response.json();
-  const verses = payload.results?.web;
-
-  if (!Array.isArray(verses)) return "";
-
-  return verses.map(verse => verse.text || "").join(" ");
+  return { text: "", version: "" };
 }
 
 function getField(object, possibleKeys) {
@@ -137,9 +150,12 @@ async function formatReading(reading, type) {
     .trim();
 
   let english = "";
+  let englishVersion = "";
 
   try {
-    english = await getEnglishPassage(englishReference);
+    const passage = await getEnglishPassage(englishReference);
+    english = passage.text;
+    englishVersion = passage.version;
   } catch (error) {
     console.error(`English translation failed for ${type}:`, error);
   }
@@ -148,6 +164,7 @@ async function formatReading(reading, type) {
     type,
     reference,
     englishReference,
+    englishVersion,
     arabic,
     english
   };
