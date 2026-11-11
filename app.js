@@ -199,11 +199,117 @@
     `);
   }
 
+
+  // Verbum Dei community features — all content is local/static; no notification system.
+  const featureText = (en, ar) => settings.language === "ar"
+    ? `<p class="feature-copy arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</p>`
+    : settings.language === "en"
+      ? `<p class="feature-copy">${escapeHtml(en)}</p>`
+      : `<div class="two-language"><p class="feature-copy">${escapeHtml(en)}</p><p class="feature-copy arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</p></div>`;
+  const rosaryMysteries = {
+    joyful: {en:"Joyful Mysteries",ar:"الأسرار الفَرَحيّة",days:"Monday · Saturday",items:[["The Annunciation","البشارة"],["The Visitation","الزيارة"],["The Nativity of Jesus","ميلاد يسوع"],["The Presentation","تقدمة يسوع في الهيكل"],["The Finding of Jesus in the Temple","وجود يسوع في الهيكل"]]},
+    luminous:{en:"Luminous Mysteries",ar:"الأسرار النورانيّة",days:"Thursday",items:[["The Baptism of Jesus","معمودية يسوع"],["The Wedding at Cana","عرس قانا الجليل"],["The Proclamation of the Kingdom","إعلان ملكوت الله"],["The Transfiguration","التجلّي"],["The Institution of the Eucharist","تأسيس سرّ الإفخارستيا"]]},
+    sorrowful:{en:"Sorrowful Mysteries",ar:"الأسرار الحُزنيّة",days:"Tuesday · Friday",items:[["The Agony in the Garden","صلاة يسوع في البستان"],["The Scourging at the Pillar","جلد يسوع"],["The Crowning with Thorns","إكليل الشوك"],["The Carrying of the Cross","حمل الصليب"],["The Crucifixion","صلب يسوع"]]},
+    glorious:{en:"Glorious Mysteries",ar:"الأسرار المجيدة",days:"Wednesday · Sunday",items:[["The Resurrection","القيامة"],["The Ascension","الصعود"],["The Descent of the Holy Spirit","حلول الروح القدس"],["The Assumption of Mary","انتقال العذراء"],["The Coronation of Mary","إكليل العذراء"]]}
+  };
+  const rosaryPrayers = [
+    {en:"Begin with the Sign of the Cross",ar:"ابدأ بإشارة الصليب"},
+    {en:"The Apostles’ Creed",ar:"قانون الإيمان"},
+    {en:"Our Father",ar:"أبانا الذي"},
+    {en:"Hail Mary — for faith",ar:"السلام عليك يا مريم — من أجل الإيمان"},
+    {en:"Hail Mary — for hope",ar:"السلام عليك يا مريم — من أجل الرجاء"},
+    {en:"Hail Mary — for charity",ar:"السلام عليك يا مريم — من أجل المحبّة"},
+    {en:"Glory Be",ar:"المجد للآب"}
+  ];
+  let rosaryState = { mystery:"joyful", phase:0, decade:0, bead:0 };
+  function rosaryStepList() {
+    const steps = [...rosaryPrayers];
+    const m = rosaryMysteries[rosaryState.mystery];
+    for(let d=0;d<5;d++){
+      steps.push({en:`Decade ${d+1}: ${m.items[d][0]} — Our Father`,ar:`العشرة ${d+1}: ${m.items[d][1]} — أبانا الذي`});
+      for(let n=1;n<=10;n++) steps.push({en:`Decade ${d+1}, Hail Mary ${n} of 10`,ar:`العشرة ${d+1}، السلام عليك يا مريم ${n} من 10`});
+      steps.push({en:`Decade ${d+1}: Glory Be and the Fatima Prayer`,ar:`العشرة ${d+1}: المجد للآب وصلاة فاطيما`});
+    }
+    steps.push({en:"Conclude with the Hail Holy Queen and the Sign of the Cross",ar:"اختم بصلاة السلام عليكِ يا ملكة، ثم إشارة الصليب"});
+    return steps;
+  }
+  function showRosary() {
+    const m=rosaryMysteries[rosaryState.mystery], steps=rosaryStepList();
+    const index=Math.min(rosaryState.phase,steps.length-1), step=steps[index];
+    const progress=Math.round((index/(steps.length-1))*100);
+    setPanel("Pray the Rosary · صلِّ المسبحة",`
+      <div class="feature-hero"><span class="feature-kicker">VERBUM DEI · PRAYER GUIDE</span><h3>Walk through the Rosary</h3><p>Take your time. You can pause or restart whenever you wish.</p></div>
+      <div class="feature-toolbar"><label for="rosaryMystery">Choose the mysteries / اختر الأسرار</label><select id="rosaryMystery">${Object.entries(rosaryMysteries).map(([id,x])=>`<option value="${id}" ${id===rosaryState.mystery?"selected":""}>${x.en} · ${x.ar}</option>`).join("")}</select></div>
+      <p class="meaning">${m.days} · ${m.en} / ${m.ar}</p>
+      <div class="progress-track"><span style="width:${progress}%"></span></div><p class="reference">PRAYER ${index+1} OF ${steps.length}</p>
+      <article class="prayer-entry rosary-current"><h3>${escapeHtml(step.en)}</h3><p class="arabic" lang="ar" dir="rtl">${escapeHtml(step.ar)}</p><p class="meaning">Mystery ${Math.min(5,Math.max(1,Math.ceil(Math.max(0,index-7)/12)))} of 5 · Take a quiet moment.</p></article>
+      <div class="feature-actions"><button class="quiet-button" data-rosary-reset>Restart</button><button class="primary-button" data-rosary-next>${index===steps.length-1?"Finish":"Next prayer →"}</button></div>
+      <p class="meaning">The guide helps you keep your place; pray the full traditional texts aloud or from your own prayer book. / هذا الدليل يساعدك على متابعة ترتيب الصلاة.</p>`);
+  }
+  const quizQuestions=[
+    {q:"Where was Jesus born?",a:["Nazareth","Bethlehem","Jerusalem"],correct:1,why:"The Gospels of Matthew and Luke name Bethlehem as the place of Jesus’ birth.",ar:"تذكر إنجيلا متّى ولوقا أنّ يسوع وُلد في بيت لحم."},
+    {q:"Who baptised Jesus in the Jordan?",a:["Peter","John the Baptist","James"],correct:1,why:"John the Baptist baptised Jesus in the Jordan River.",ar:"عمّد يوحنّا المعمدان يسوع في نهر الأردن."},
+    {q:"What is the first book of the Bible?",a:["Genesis","Psalms","Exodus"],correct:0,why:"Genesis is the opening book of the Bible.",ar:"سفر التكوين هو السفر الأوّل في الكتاب المقدّس."},
+    {q:"Which apostle is traditionally associated with the keys of the Kingdom?",a:["Peter","Thomas","Andrew"],correct:0,why:"Jesus gives Peter the keys in Matthew 16:19.",ar:"يرتبط بطرس بمفاتيح الملكوت في متّى 16:19."},
+    {q:"What is the central celebration of the Eucharist?",a:["The Mass / Divine Liturgy","The baptismal service","The funeral rite"],correct:0,why:"Catholics celebrate the Eucharist in the Mass; Eastern Catholics also call it the Divine Liturgy.",ar:"يحتفل الكاثوليك بالقربان المقدّس في القداس الإلهي."},
+    {q:"Which Lebanese saint is known as the hermit of Annaya?",a:["Saint Rafqa","Saint Charbel","Saint Nimatullah"],correct:1,why:"Saint Charbel lived as a monk and hermit in Annaya.",ar:"عاش القديس شربل راهبًا وناسكًا في عنايا."},
+    {q:"How many Gospels are in the New Testament?",a:["Two","Four","Seven"],correct:1,why:"The four canonical Gospels are Matthew, Mark, Luke and John.",ar:"الأناجيل الأربعة هي متّى ومرقس ولوقا ويوحنّا."},
+    {q:"What season prepares the Church for Christmas?",a:["Lent","Advent","Easter"],correct:1,why:"Advent is the season of preparation and expectation before Christmas.",ar:"زمن المجيء هو زمن الاستعداد وانتظار عيد الميلاد."},
+    {q:"Where is the Qadisha Valley?",a:["North Lebanon","South Lebanon","Beirut"],correct:0,why:"The Qadisha Valley is in northern Lebanon and is deeply connected with Maronite monastic history.",ar:"يقع وادي قاديشا في شمال لبنان ويرتبط بتاريخ الرهبنة المارونية."},
+    {q:"What does ‘Alleluia’ mean?",a:["Peace be with you","Praise the Lord","Go in peace"],correct:1,why:"Alleluia comes from Hebrew and means ‘Praise the Lord’.",ar:"هللويا كلمة من أصل عبري تعني سبّحوا الرب."}
+  ];
+  let quizIndex=0,quizScore=0,quizAnswered=false;
+  function showQuiz(){
+    if(quizIndex>=quizQuestions.length){
+      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>Quiz complete!</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizQuestions.length}</div><p>You got ${quizScore} out of ${quizQuestions.length} correct.</p><button class="primary-button" data-quiz-restart>Play again ↻</button></div>`);return;
+    }
+    const q=quizQuestions[quizIndex];
+    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">QUESTION ${quizIndex+1} OF ${quizQuestions.length} · SCORE ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizQuestions.length*100}%"></span></div><article class="quiz-card"><h3>${escapeHtml(q.q)}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${escapeHtml(v)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?escapeHtml(q.why)+" / "+escapeHtml(q.ar):""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizQuestions.length-1?"See result":"Next question →"}</button></article>`);
+    if(quizAnswered){const options=output.querySelectorAll("[data-quiz-answer]");options.forEach((b,i)=>{if(i===q.correct)b.classList.add("correct")});}
+  }
+  const featuredSaints=[
+    {en:"Saint Charbel Makhlouf",ar:"القديس شربل مخلوف",date:"July 24",story:"A Maronite monk and hermit from Lebanon, remembered for a life of prayer, simplicity and devotion to the Eucharist.",storyAr:"راهب وناسك ماروني من لبنان، يُذكر بحياة الصلاة والبساطة والتعبّد للقربان المقدّس."},
+    {en:"Saint Rafqa",ar:"القديسة رفقا",date:"March 23",story:"A Lebanese Maronite nun whose life is remembered for prayer, faith and patient hope.",storyAr:"راهبة مارونية لبنانية تُذكر بحياة الصلاة والإيمان والرجاء."},
+    {en:"Saint Nimatullah Al-Hardini",ar:"القديس نعمة الله الحرديني",date:"December 14",story:"A Lebanese Maronite monk and teacher known for a life centred on prayer, study and service.",storyAr:"راهب ومعلّم ماروني لبناني عُرف بحياة تتمحور حول الصلاة والدراسة والخدمة."},
+    {en:"Saint Aquilina of Byblos",ar:"القديسة أكويلينا من جبيل",date:"June 13",story:"A young martyr honoured in the Christian tradition of Byblos.",storyAr:"شهيدة شابّة تُكرّم في التقليد المسيحي في مدينة جبيل."},
+    {en:"Saint Anthony the Great",ar:"القديس أنطونيوس الكبير",date:"January 17",story:"An early Christian monk whose example helped shape the tradition of monastic life.",storyAr:"راهب مسيحي من القرون الأولى، أسهم مثاله في نشأة الحياة الرهبانية."},
+    {en:"Saint Josephine Bakhita",ar:"القديسة جوزفين بخيتا",date:"February 8",story:"A Sudanese-born Canossian sister whose life became a witness to dignity, forgiveness and hope.",storyAr:"راهبة كانوسيّة وُلدت في السودان، وأصبحت حياتها شهادة للكرامة والمغفرة والرجاء."},
+    {en:"Saint Francis of Assisi",ar:"القديس فرنسيس الأسيزي",date:"October 4",story:"Remembered for simplicity, care for creation and joyful service to the poor.",storyAr:"يُذكر بالبساطة والعناية بالخليقة والخدمة المفرحة للفقراء."}
+  ];
+  function showSaintOfDay(){
+    const day=Math.floor(Date.now()/86400000), saint=featuredSaints[((day%featuredSaints.length)+featuredSaints.length)%featuredSaints.length];
+    setPanel("Saint of the Day · قديس اليوم",`<div class="feature-hero"><span class="feature-kicker">TODAY’S SAINT · ${saint.date.toUpperCase()}</span><h3>${escapeHtml(saint.en)}</h3><p class="arabic" lang="ar" dir="rtl">${escapeHtml(saint.ar)}</p></div><div class="saint-detail">${featureText(saint.story,saint.storyAr)}<p class="meaning">This is a featured daily profile, not a claim that this is the saint listed in the official liturgical calendar today. / هذه نبذة يومية مختارة وليست تأكيدًا أنّ هذا هو قديس التقويم الليتورجي اليوم.</p><button class="text-button" data-view="saints">Explore all saints ↗</button></div>`);
+  }
+  let calendarMonth=new Date().getMonth(),calendarYear=new Date().getFullYear();
+  const feastDays={"01-01":"Mary, Mother of God · مريم والدة الإله","01-06":"Epiphany · عيد الدنح","03-19":"Saint Joseph · مار يوسف","03-25":"Annunciation · عيد البشارة","06-29":"Saints Peter and Paul · مار بطرس وبولس","08-15":"Assumption of Mary · انتقال العذراء","09-08":"Nativity of Mary · مولد العذراء","11-01":"All Saints · عيد جميع القديسين","12-08":"Immaculate Conception · الحبل بلا دنس","12-25":"Christmas · عيد الميلاد"};
+  function showCalendar(){
+    const first=new Date(calendarYear,calendarMonth,1),count=new Date(calendarYear,calendarMonth+1,0).getDate(),offset=first.getDay(),today=new Date();
+    const cells=Array.from({length:offset},()=>'<span class="calendar-empty"></span>');
+    for(let d=1;d<=count;d++){const key=`${String(calendarMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;cells.push(`<button class="calendar-day ${d===today.getDate()&&calendarMonth===today.getMonth()&&calendarYear===today.getFullYear()?"today":""} ${feastDays[key]?"feast":""}" data-calendar-day="${d}" title="${escapeHtml(feastDays[key]||"")}">${d}</button>`);}
+    const dataNote="The calendar below highlights selected major Catholic feast days. Moveable feasts and the official Maronite daily calendar are shown in the daily readings from OLM.";
+    setPanel("Catholic Calendar · التقويم الكاثوليكي",`<div class="calendar-head"><button class="quiet-button" data-calendar-prev aria-label="Previous month">←</button><h3>${first.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</h3><button class="quiet-button" data-calendar-next aria-label="Next month">→</button></div><div class="calendar-grid calendar-weekdays">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(x=>`<span>${x}</span>`).join("")}</div><div class="calendar-grid">${cells.join("")}</div><div class="calendar-detail" id="calendarDetail"><p class="meaning">${dataNote}</p></div><button class="text-button" data-action="daily">Open today’s Maronite readings ↗</button>`);
+  }
+  function showHeritage(){
+    setPanel("Lebanese Catholic Heritage · التراث الكاثوليكي اللبناني",`<div class="feature-hero heritage-hero"><span class="feature-kicker">FAITH ROOTED IN LEBANON</span><h3>Mountains, monasteries & a living tradition.</h3><p class="arabic" lang="ar" dir="rtl">إيمان متجذّر في لبنان: جبال وأديار وتقاليد حيّة.</p></div><div class="heritage-grid"><article><h3>The Maronite Church</h3><p>The Maronite Church is an Eastern Catholic Church in full communion with the Bishop of Rome. Its Syriac Antiochene liturgical tradition has deep roots in Lebanon.</p><p class="arabic" dir="rtl">الكنيسة المارونية كنيسة شرقية كاثوليكية في شركة كاملة مع أسقف روما، وتحمل تقليدًا ليتورجيًا سريانيًا أنطاكيًا متجذّرًا في لبنان.</p></article><article><h3>Qadisha Valley</h3><p>The Holy Valley in northern Lebanon preserves a remarkable landscape of monasteries, hermitages and centuries of Christian monastic life.</p><p class="arabic" dir="rtl">يحفظ الوادي المقدّس في شمال لبنان أديرة ومحابس وآثارًا من قرون طويلة من الحياة الرهبانية المسيحية.</p></article><article><h3>Our saints & blesseds</h3><p>Saint Charbel, Saint Rafqa and Saint Nimatullah are among Lebanon’s best-known Maronite saints. Blessed Estephan El Douaihy and other witnesses also belong to this story.</p><p class="arabic" dir="rtl">من أشهر قديسي لبنان الموارنة شربل ورفقا ونعمة الله، كما ينتمي الطوباوي اسطفان الدويهي وشهود آخرون إلى هذا التاريخ.</p></article><article><h3>Living heritage</h3><p>Faith is carried through parish life, family prayer, the Divine Liturgy, hymns, feast days and the care of neighbours.</p><p class="arabic" dir="rtl">يستمرّ الإيمان في حياة الرعايا وصلاة العائلة والقداس الإلهي والترانيم والأعياد وخدمة القريب.</p></article></div><p class="meaning">Explore the saint biographies and daily readings for more. This introduction is educational and does not replace parish or Church sources.</p><button class="text-button" data-view="saints">Discover Lebanese saints ↗</button>`);
+  }
+  function showIntentions(){
+    let saved=[];try{saved=JSON.parse(localStorage.getItem("verbum-intentions")||"[]");if(!Array.isArray(saved))saved=[];}catch{saved=[];}
+    const rows=saved.map((x,i)=>`<article class="intention-item"><p>${escapeHtml(x.text)}</p><small>${new Date(x.date).toLocaleDateString()}</small><button class="quiet-button" data-intention-delete="${i}" aria-label="Delete intention">Remove</button></article>`).join("");
+    setPanel("Prayer Intentions · نيات الصلاة",`<div class="feature-hero"><h3>What shall we pray for?</h3><p class="arabic" dir="rtl">بماذا نصلّي اليوم؟</p><p>Write a personal intention and keep it here as a reminder to pray.</p></div><form id="intentionForm" class="intention-form"><label for="intentionText">Your intention / نيّة الصلاة</label><textarea id="intentionText" maxlength="500" required placeholder="Write a short intention… / اكتب نيّة قصيرة…"></textarea><button class="primary-button" type="submit">Save on this device</button></form><p class="meaning">Privacy: intentions are stored only in this browser on this device. They are not sent to the website or shared with anyone. Avoid entering private details about yourself or others.</p><div class="intentions-list">${rows||'<p class="meaning">Your saved intentions will appear here.</p>'}</div>`);
+  }
+
   function go(view) {
     document.querySelectorAll(".nav-link").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
     if (view === "readings" || view === "daily") return showDailyReadings();
     if (view === "verse") return showRandomVerse();
     if (view === "prayers") return showPrayers();
+    if (view === "rosary") return showRosary();
+    if (view === "gospel") return showDailyReadings();
+    if (view === "saint-day") return showSaintOfDay();
+    if (view === "quiz") { quizIndex=0; quizScore=0; quizAnswered=false; return showQuiz(); }
+    if (view === "calendar") return showCalendar();
+    if (view === "intentions") return showIntentions();
+    if (view === "heritage") return showHeritage();
     if (view === "saints" || view === "priest") { window.dispatchEvent(new CustomEvent("verbum:view", { detail: view })); return; }
     if (view === "reflection") return showReflection();
     panelTitle.textContent = "Begin with Scripture";
@@ -213,11 +319,26 @@
   document.addEventListener("click", event => {
     const prayerCategory = event.target.closest("[data-prayer-category]");
     if (prayerCategory) { showPrayers(prayerCategory.dataset.prayerCategory); return; }
+
+    const rosarySelect=event.target.closest("#rosaryMystery");
+    if(rosarySelect){rosaryState={mystery:rosarySelect.value,phase:0,decade:0,bead:0};showRosary();return;}
+    if(event.target.closest("[data-rosary-reset]")){rosaryState.phase=0;showRosary();return;}
+    if(event.target.closest("[data-rosary-next]")){const total=rosaryStepList().length;rosaryState.phase=rosaryState.phase>=total-1?0:rosaryState.phase+1;showRosary();return;}
+    const quizAnswer=event.target.closest("[data-quiz-answer]");
+    if(quizAnswer&&!quizAnswered){const q=quizQuestions[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();return;}
+    if(event.target.closest("[data-quiz-next]")&&quizAnswered){quizIndex++;quizAnswered=false;showQuiz();return;}
+    if(event.target.closest("[data-quiz-restart]")){quizIndex=0;quizScore=0;quizAnswered=false;showQuiz();return;}
+    if(event.target.closest("[data-calendar-prev]")){calendarMonth--;if(calendarMonth<0){calendarMonth=11;calendarYear--;}showCalendar();return;}
+    if(event.target.closest("[data-calendar-next]")){calendarMonth++;if(calendarMonth>11){calendarMonth=0;calendarYear++;}showCalendar();return;}
+    const calendarDay=event.target.closest("[data-calendar-day]");
+    if(calendarDay){const key=`${String(calendarMonth+1).padStart(2,"0")}-${String(Number(calendarDay.dataset.calendarDay)).padStart(2,"0")}`;$("#calendarDetail").innerHTML=feastDays[key]?`<p><strong>${escapeHtml(feastDays[key])}</strong></p>`:'<p class="meaning">No major fixed feast is highlighted for this date. / لا يوجد عيد ثابت بارز محدّد لهذا التاريخ.</p>';return;}
+    if(event.target.closest("[data-intention-delete]")){let saved=[];try{saved=JSON.parse(localStorage.getItem("verbum-intentions")||"[]");}catch{}saved.splice(Number(event.target.closest("[data-intention-delete]").dataset.intentionDelete),1);localStorage.setItem("verbum-intentions",JSON.stringify(saved));showIntentions();return;}
     const action = event.target.closest("[data-action]");
     if (action) go(action.dataset.action);
     const nav = event.target.closest("[data-view]");
     if (nav) go(nav.dataset.view);
   });
+  output.addEventListener("submit",event=>{if(event.target.id!=="intentionForm")return;event.preventDefault();const field=$("#intentionText");const value=field.value.trim();if(!value)return;let saved=[];try{saved=JSON.parse(localStorage.getItem("verbum-intentions")||"[]");}catch{}saved.unshift({text:value,date:new Date().toISOString()});localStorage.setItem("verbum-intentions",JSON.stringify(saved.slice(0,50)));showIntentions();});
   $("#settingsButton").addEventListener("click", () => settingsDialog.showModal());
   $("#languageButton").addEventListener("click", () => {
     settings.language = settings.language === "both" ? "ar" : settings.language === "ar" ? "en" : "both";
