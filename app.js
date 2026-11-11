@@ -3,14 +3,15 @@
   const output = $("#output");
   const panelTitle = $("#panelTitle");
   const settingsDialog = $("#settingsDialog");
-  const defaults = { language: "both", fontSize: "normal", theme: "parchment" };
+  const defaults = { language: "both", fontSize: "normal", theme: "midnight" };
   let settings = { ...defaults, ...readSettings() };
+  if (!["midnight", "daylight"].includes(settings.theme)) settings.theme = "midnight";
   let lastVerse = "";
   let lastReflection = -1;
 
   const translations = {
     en: {
-      navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection",
+      navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection", navSaints:"Saints", navPriest:"Church life", heroEyebrow:"A QUIETER PLACE FOR WHAT MATTERS", heroButton:"Read today’s Word", saintsButton:"Meet the saints",
       heroEyebrow:"A CATHOLIC SCRIPTURE COMPANION", heroTitle:'Rooted in the Word.<br><em>Guided by faith.</em>',
       heroSubtitle:"Read the Scriptures, reflect with the Church, and carry the Word into your day.",
       welcomeKicker:"YOUR DAILY TIME WITH GOD", welcomeTitle:"A moment in the Word",
@@ -28,7 +29,7 @@
       fontLabel:"Reading text size", themeLabel:"Color theme", saveSettings:"Save settings"
     },
     ar: {
-      navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمل",
+      navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمّل", navSaints:"القديسون", navPriest:"الحياة الكنسية", heroEyebrow:"مساحة هادئة لما هو أساسي", heroButton:"اقرأ كلمة اليوم", saintsButton:"تعرّف إلى القديسين",
       heroEyebrow:"رفيقك في قراءة الكتاب المقدّس", heroTitle:'متجذّرون في الكلمة.<br><em>ومسترشدون بالإيمان.</em>',
       heroSubtitle:"اقرأ الكتاب المقدّس، وتأمّل مع الكنيسة، واحمل الكلمة معك طوال يومك.",
       welcomeKicker:"وقتك اليومي مع الله", welcomeTitle:"لحظة مع الكلمة",
@@ -53,7 +54,7 @@
   }
   function saveSettings() { localStorage.setItem("verbum-settings", JSON.stringify(settings)); }
   function applySettings() {
-    document.body.classList.toggle("theme-night", settings.theme === "night");
+    document.body.classList.toggle("theme-day", settings.theme === "daylight");
     document.body.classList.toggle("lang-ar", settings.language === "ar");
     const sizes = { small: ".88", normal: "1", large: "1.15", xlarge: "1.3" };
     document.documentElement.style.setProperty("--reading-scale", sizes[settings.fontSize] || "1");
@@ -105,7 +106,9 @@
     lastVerse = reference;
     setPanel(settings.language === "ar" ? "آية من الكتاب المقدّس" : "A verse from Scripture", `<p class="loading">✝ Loading Scripture… / جارٍ تحميل الآية…</p>`);
     try {
-      const data = await fetchJson(`/.netlify/functions/bible-verse?reference=${encodeURIComponent(reference)}`);
+      const bundle = await fetchJson("./data/bible-verses.json");
+      const data = bundle.verses?.[reference];
+      if (!data || (!data.english && !data.arabic)) throw new Error("This verse is not available in the latest Scripture data.");
       const meaning = window.BOT_DATA.meanings[reference] || {
         en: "Take a moment to pray with this passage and consider how it speaks to your day.",
         ar: "خذ لحظة للصلاة مع هذا المقطع، وتأمّل كيف يخاطب يومك."
@@ -129,7 +132,7 @@
   async function showDailyReadings() {
     setPanel(settings.language === "ar" ? "قراءات اليوم" : "Today's Maronite readings", `<p class="loading">⏳ Fetching OLM readings… / جارٍ جلب القراءات الليتورجية…</p>`);
     try {
-      const data = await fetchJson("/.netlify/functions/daily-readings");
+      const data = await fetchJson("./data/daily-readings.json");
       const blocks = [];
       for (const item of [data.epistle, data.gospel]) {
         if (!item) continue;
@@ -147,7 +150,7 @@
       const color = data.liturgicalColor || "Not detected";
       setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "Liturgical color"}: ${escapeHtml(color)}</p><p class="meaning">Source: <a href="https://www.olm.org.lb/ar/liturgical-calendar" target="_blank" rel="noopener">OLM Maronite Liturgical Calendar</a></p>`);
     } catch (error) {
-      setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">Check the Netlify function deployment and try again.</p>`);
+      setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">The latest readings could not be loaded. Please try again later.</p>`);
     }
   }
 
@@ -167,6 +170,7 @@
     document.querySelectorAll(".nav-link").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
     if (view === "readings" || view === "daily") return showDailyReadings();
     if (view === "verse") return showRandomVerse();
+    if (view === "saints" || view === "priest") { window.dispatchEvent(new CustomEvent("verbum:view", { detail: view })); return; }
     if (view === "reflection") return showReflection();
     panelTitle.textContent = "Begin with Scripture";
     output.innerHTML = `<p class="empty-state">${escapeHtml(translations[settings.language === "ar" ? "ar" : "en"].emptyPrompt)}</p>`;
