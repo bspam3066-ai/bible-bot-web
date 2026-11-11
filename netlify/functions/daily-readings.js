@@ -8,10 +8,9 @@ const BOOKS = {
   "تك": "Genesis", "خر": "Exodus", "لا": "Leviticus",
   "عد": "Numbers", "تث": "Deuteronomy",
   "يش": "Joshua", "قض": "Judges", "را": "Ruth",
-  "صم": "Samuel", "مل": "Kings", "أخ": "Chronicles",
   "عز": "Ezra", "نح": "Nehemiah", "طو": "Tobit",
-  "يه": "Jude", "اس": "Esther", "أي": "Job",
-  "مز": "Psalms", "أم": "Proverbs", "جا": "Ecclesiastes",
+  "اس": "Esther", "أي": "Job", "مز": "Psalms",
+  "أم": "Proverbs", "جا": "Ecclesiastes",
   "نش": "Song of Solomon", "حك": "Wisdom", "سي": "Sirach",
   "أش": "Isaiah", "إش": "Isaiah", "إر": "Jeremiah",
   "مرا": "Lamentations", "با": "Baruch", "حز": "Ezekiel",
@@ -22,10 +21,10 @@ const BOOKS = {
   "ملا": "Malachi", "مت": "Matthew", "متى": "Matthew",
   "مر": "Mark", "لو": "Luke", "يو": "John",
   "أع": "Acts", "رو": "Romans", "غل": "Galatians",
-  "أف": "Ephesians", "في": "Philippians", "كو": "Colossians",
-  "تس": "Thessalonians", "تم": "Timothy",
-  "تي": "Titus", "فل": "Philemon", "عب": "Hebrews",
-  "يع": "James", "بط": "Peter", "رؤ": "Revelation"
+  "أف": "Ephesians", "في": "Philippians",
+  "كو": "Colossians", "عب": "Hebrews",
+  "يع": "James", "رؤ": "Revelation",
+  "يهود": "Jude"
 };
 
 function normalizeDigits(value) {
@@ -45,32 +44,41 @@ function normalizeArabic(value) {
 }
 
 function preparePage(html) {
-  const formatted = html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(
-      /<\/(p|div|li|h[1-6]|section|article|tr)>/gi,
-      "\n"
-    );
+  const $ = cheerio.load(html);
 
-  const $ = cheerio.load(formatted);
+  // Capture scripts BEFORE removing them.
+  const scripts = $("script")
+    .map((_, el) => ({
+      src: $(el).attr("src") || "",
+      preview: $(el).text().slice(0, 500)
+    }))
+    .get()
+    .slice(0, 20);
 
-  $("script, style, noscript, svg").remove();
+  const title = $("title").text();
 
-  const text = $("body").text()
+  const bodyText = $("body").text();
+  const rootText = $.root().text();
+
+  const text = (bodyText || rootText)
     .replace(/\u00a0/g, " ")
     .replace(/\r/g, "\n")
     .replace(/[ \t]+/g, " ")
     .replace(/\n\s*\n+/g, "\n")
     .trim();
 
-  return { $, text };
+  return {
+    $,
+    text,
+    title,
+    scripts
+  };
 }
 
 function findReference(text) {
   const normalized = normalizeArabic(text);
 
   const keys = Object.keys(BOOKS)
-    .filter(key => !["صم", "مل", "أخ", "قور", "تس", "تم", "بط"].includes(key))
     .sort((a, b) => b.length - a.length);
 
   const alternatives = keys
@@ -83,6 +91,7 @@ function findReference(text) {
   );
 
   const match = regex.exec(normalized);
+
   if (!match) return null;
 
   const book = BOOKS[match[2]];
@@ -99,26 +108,25 @@ function findReference(text) {
 
 function findReadingSection(text, labels, nextLabels) {
   const normalized = normalizeArabic(text);
-  const normalizedLabels = labels.map(normalizeArabic);
-  const normalizedNext = nextLabels.map(normalizeArabic);
 
   const positions = [];
 
-  for (const label of normalizedLabels) {
-    let pos = 0;
+  for (const label of labels) {
+    const key = normalizeArabic(label);
+    let position = 0;
 
-    while ((pos = normalized.indexOf(label, pos)) !== -1) {
-      positions.push(pos);
-      pos += label.length;
+    while ((position = normalized.indexOf(key, position)) !== -1) {
+      positions.push(position);
+      position += key.length;
     }
   }
 
   positions.sort((a, b) => a - b);
 
   for (const start of positions) {
-    const possibleEnds = normalizedNext
-      .map(label => normalized.indexOf(label, start + 1))
-      .filter(pos => pos !== -1);
+    const possibleEnds = nextLabels
+      .map(label => normalized.indexOf(normalizeArabic(label), start + 1))
+      .filter(position => position !== -1);
 
     const end = possibleEnds.length
       ? Math.min(...possibleEnds)
@@ -131,7 +139,6 @@ function findReadingSection(text, labels, nextLabels) {
 
     let reading = section.slice(reference.end).trim();
 
-    // Remove the quoted heading that repeats the reference.
     reading = reading.replace(
       /^[“"«][^”"»]*[”"»]\s*/u,
       ""
@@ -141,33 +148,10 @@ function findReadingSection(text, labels, nextLabels) {
       .replace(/^[\s:،؛.!؟]+/, "")
       .trim();
 
-    return {
-      reference,
-      reading
-    };
+    return { reference, reading };
   }
 
   return null;
-}
-
-function findMetadata(text, labels) {
-  const normalized = normalizeArabic(text);
-
-  for (const label of labels) {
-    const key = normalizeArabic(label);
-    const index = normalized.indexOf(key);
-
-    if (index === -1) continue;
-
-    const value = normalized
-      .slice(index + key.length)
-      .split("\n")[0]
-      .trim();
-
-    if (value) return value;
-  }
-
-  return "";
 }
 
 async function getEnglishPassage(reference) {
@@ -212,7 +196,7 @@ async function enrichReading(type, section) {
 }
 
 export default async () => {
-  let debug = {};
+  let diagnostic = {};
 
   try {
     const response = await fetch(OLM_URL, {
@@ -224,23 +208,28 @@ export default async () => {
       }
     });
 
+    const html = await response.text();
+
+    console.log("RAW HTML LENGTH:", html.length);
+    console.log("RAW HTML START:", JSON.stringify(html.slice(0, 3000)));
+
     if (!response.ok) {
       throw new Error(`OLM returned HTTP ${response.status}`);
     }
 
-    const html = await response.text();
-    const { $, text } = preparePage(html);
+    const page = preparePage(html);
+    const { text, title, scripts } = page;
 
-    debug = {
+    diagnostic = {
+      status: response.status,
       finalUrl: response.url,
       contentType: response.headers.get("content-type"),
-      title: $("title").text(),
-      pageLength: text.length,
-      preview: text.slice(0, 2500),
-      scripts: $("script[src]")
-        .map((_, el) => $(el).attr("src"))
-        .get()
-        .slice(0, 15)
+      rawHtmlLength: html.length,
+      rawHtmlPreview: html.slice(0, 3000),
+      title,
+      pageTextLength: text.length,
+      pageTextPreview: text.slice(0, 2500),
+      scripts
     };
 
     const epistleSection = findReadingSection(
@@ -256,11 +245,11 @@ export default async () => {
     );
 
     if (!epistleSection || !gospelSection) {
-      console.error("OLM readings not found:", debug);
+      console.error("OLM parsing failed:", diagnostic);
 
       return Response.json({
-        error: "The readings were not found in the HTML downloaded from OLM.",
-        diagnostic: debug
+        error: "OLM readings could not be extracted.",
+        diagnostic
       }, {
         status: 502
       });
@@ -271,16 +260,11 @@ export default async () => {
       enrichReading("gospel", gospelSection)
     ]);
 
-    const liturgicalColor = findMetadata(text, [
-      "اللون الليتورجيّ",
-      "اللون الليتورجي"
-    ]);
-
     return Response.json({
       source: OLM_URL,
       date: "",
       liturgicalDay: "",
-      liturgicalColor,
+      liturgicalColor: "",
       epistle,
       gospel
     }, {
@@ -294,7 +278,7 @@ export default async () => {
 
     return Response.json({
       error: error.message || "Unable to load OLM readings.",
-      diagnostic: debug
+      diagnostic
     }, {
       status: 502
     });
