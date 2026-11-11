@@ -11,7 +11,7 @@
 
   const translations = {
     en: {
-      navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection", navSaints:"Saints", navPriest:"Church life", heroEyebrow:"A QUIETER PLACE FOR WHAT MATTERS", heroButton:"Read today’s Word", saintsButton:"Meet the saints",
+      navHome:"Home", navReadings:"Daily readings", navVerse:"Random verse", navReflection:"Reflection", navSaints:"Saints", navPriest:"Church life", navPrayers:"Prayers", prayersTitle:"Prayer library", prayersDescription:"Traditional prayers and daily devotions in Arabic and English.", openPrayers:"Open the prayer library ↗", heroEyebrow:"A QUIETER PLACE FOR WHAT MATTERS", heroButton:"Read today’s Word", saintsButton:"Meet the saints",
       heroEyebrow:"A CATHOLIC SCRIPTURE COMPANION", heroTitle:'Rooted in the Word.<br><em>Guided by faith.</em>',
       heroSubtitle:"Read the Scriptures, reflect with the Church, and carry the Word into your day.",
       welcomeKicker:"YOUR DAILY TIME WITH GOD", welcomeTitle:"A moment in the Word",
@@ -29,7 +29,7 @@
       fontLabel:"Reading text size", themeLabel:"Color theme", saveSettings:"Save settings"
     },
     ar: {
-      navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمّل", navSaints:"القديسون", navPriest:"الحياة الكنسية", heroEyebrow:"مساحة هادئة لما هو أساسي", heroButton:"اقرأ كلمة اليوم", saintsButton:"تعرّف إلى القديسين",
+      navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمّل", navSaints:"القديسون", navPriest:"الحياة الكنسية", navPrayers:"الصلوات", prayersTitle:"مكتبة الصلوات", prayersDescription:"صلوات كنسيّة وتأمّلات يومية بالعربية والإنجليزية.", openPrayers:"افتح مكتبة الصلوات ←", heroEyebrow:"مساحة هادئة لما هو أساسي", heroButton:"اقرأ كلمة اليوم", saintsButton:"تعرّف إلى القديسين",
       heroEyebrow:"رفيقك في قراءة الكتاب المقدّس", heroTitle:'متجذّرون في الكلمة.<br><em>ومسترشدون بالإيمان.</em>',
       heroSubtitle:"اقرأ الكتاب المقدّس، وتأمّل مع الكنيسة، واحمل الكلمة معك طوال يومك.",
       welcomeKicker:"وقتك اليومي مع الله", welcomeTitle:"لحظة مع الكلمة",
@@ -166,10 +166,44 @@
     setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">🙏 Take a quiet moment to reflect and pray.</p><button class="text-button" data-action="reflection">Another reflection →</button>`);
   }
 
+
+  function showPrayers(category = "all") {
+    const library = window.PRAYER_DATA;
+    if (!library?.items?.length) {
+      setPanel(settings.language === "ar" ? "مكتبة الصلوات" : "Prayer library", '<p class="error-message">Prayer content could not be loaded.</p>');
+      return;
+    }
+    const isArabic = settings.language === "ar";
+    const title = isArabic ? "مكتبة الصلوات" : "Prayer Library";
+    const categories = library.categories.map(item =>
+      `<button class="prayer-filter ${item.id === category ? "active" : ""}" data-prayer-category="${item.id}">${isArabic ? item.ar : item.en}</button>`
+    ).join("");
+    const items = library.items.filter(item => category === "all" || item.category === category);
+    const cards = items.map(item => {
+      const body = languageBlocks(item.en, item.ar, "prayer-text");
+      const note = isArabic ? item.noteAr : item.noteEn;
+      return `<article class="prayer-entry"><div class="prayer-entry-heading"><span class="prayer-cross">✝</span><div><h3>${isArabic ? escapeHtml(item.arTitle) : escapeHtml(item.enTitle)}</h3><small>${escapeHtml(note)}</small></div></div>${body}</article>`;
+    }).join("");
+    const intro = isArabic
+      ? "صلوات تساعدك على التقرّب من الله في كل يوم. اختر صلاة وخذ لحظة هادئة."
+      : "A collection of traditional Catholic prayers and original daily devotions. Choose a prayer and take a quiet moment.";
+    setPanel(title, `
+      <div class="prayer-library-hero">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Lord%27s_Prayer_and_a_crucifix.jpg" alt="A crucifix resting on an open Bible showing the Lord's Prayer" loading="lazy">
+        <div class="prayer-library-overlay"><span>VERBUM DEI · ORA ET LABORA</span><h3>${isArabic ? "ارفع قلبك إلى الله" : "Lift your heart to God"}</h3><p>${intro}</p></div>
+      </div>
+      <div class="prayer-filters">${categories}</div>
+      <div class="prayer-list">${cards}</div>
+      <p class="prayer-credit">Image: James Chan (jclk8888) · CC0 Public Domain · <a href="https://commons.wikimedia.org/wiki/File:Lord%27s_Prayer_and_a_crucifix.jpg" target="_blank" rel="noopener">Image details</a></p>
+      <p class="meaning">${isArabic ? "ملاحظة: الصلوات الأساسية هي صلوات كاثوليكية متوارثة. أما الصلوات التأمّلية وطلبات الشفاعة فهي صيغ تعبّدية أُعدّت للموقع وليست نصوصًا طقسية رسمية." : "Note: The traditional prayers are established Catholic prayers. The daily devotions and saint-intercession texts are original devotional wording for this site, not official liturgical texts."}</p>
+    `);
+  }
+
   function go(view) {
     document.querySelectorAll(".nav-link").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
     if (view === "readings" || view === "daily") return showDailyReadings();
     if (view === "verse") return showRandomVerse();
+    if (view === "prayers") return showPrayers();
     if (view === "saints" || view === "priest") { window.dispatchEvent(new CustomEvent("verbum:view", { detail: view })); return; }
     if (view === "reflection") return showReflection();
     panelTitle.textContent = "Begin with Scripture";
