@@ -83,6 +83,33 @@
   for (const entry of entries) {
     if (additionalArabicStories[entry.en]) entry.storyAr = additionalArabicStories[entry.en];
   }
+  // Keep the Lebanese collection focused on saints and blesseds with a clear Lebanese connection,
+  // while retaining the widely recognised saints from the universal Church.
+  const lebaneseProfiles = new Set([
+    "Aquilina of Byblos", "Barbara", "Charbel Makhlouf", "Estephan El Douaihy",
+    "Ignatius Maloyan", "Nimatullah Al-Hardini", "Rafqa Pietra Choboq Ar-Rayès",
+    "Estephan Nehme", "Leonard Melki", "Thomas Saleh", "The Massabki Brothers",
+    "Maron", "John Maron", "Elias Hoayek", "Blessed Jacques Haddad (Abouna Yaacoub)",
+    "Joseph of Damascus"
+  ]);
+  const recognisedWorldSaints = new Set([
+    "Joseph of Nazareth", "Francis of Assisi", "Clare of Assisi", "Augustine of Hippo",
+    "Monica", "Benedict of Nursia", "Anthony the Great", "Nicholas of Myra", "George",
+    "Patrick of Ireland", "Francis Xavier", "Ignatius of Loyola", "Teresa of Ávila",
+    "John of the Cross", "Thérèse of Lisieux", "John Bosco", "Vincent de Paul",
+    "Martin de Porres", "Rose of Lima", "Kateri Tekakwitha", "Josephine Bakhita",
+    "Maximilian Kolbe", "Oscar Romero", "Mother Teresa of Calcutta", "John Paul II",
+    "Carlo Acutis", "Pier Giorgio Frassati", "Elizabeth of Hungary", "Catherine of Siena",
+    "Lucy of Syracuse", "Agnes of Rome", "Cecilia", "John XXIII", "Paul VI"
+  ]);
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const entry = entries[i];
+    if (!lebaneseProfiles.has(entry.en) && !recognisedWorldSaints.has(entry.en)) {
+      entries.splice(i, 1);
+    } else {
+      entry.group = lebaneseProfiles.has(entry.en) ? "Lebanese" : "Worldwide";
+    }
+  }
   entries.sort((a, b) => (a.group === b.group ? a.en.localeCompare(b.en) : a.group === "Lebanese" ? -1 : 1));
   const esc = (s) => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
