@@ -85,10 +85,53 @@
   }
   entries.sort((a, b) => (a.group === b.group ? a.en.localeCompare(b.en) : a.group === "Lebanese" ? -1 : 1));
   const esc = (s) => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  async function loadSaintImages(list) {
+    const pending = list.filter(s => !s.imageRequested && !s.imageUrl);
+    pending.forEach(s => { s.imageRequested = true; });
+    for (let i = 0; i < pending.length; i += 6) {
+      await Promise.all(pending.slice(i, i + 6).map(async s => {
+        const titles = [s.en, "Saint " + s.en];
+        for (const title of titles) {
+          try {
+            const response = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title));
+            if (!response.ok) continue;
+            const page = await response.json();
+            const image = page.thumbnail?.source || page.original?.source;
+            if (image) {
+              s.imageUrl = image;
+              s.imagePage = page.content_urls?.desktop?.page || ("https://en.wikipedia.org/wiki/" + encodeURIComponent(page.title || title).replace(/%20/g, "_"));
+              break;
+            }
+          } catch {}
+        }
+        const index = entries.indexOf(s);
+        document.querySelectorAll('[data-saint-image="' + index + '"]').forEach(img => {
+          if (s.imageUrl) {
+            img.src = s.imageUrl;
+            img.hidden = false;
+            const placeholder = img.parentElement.querySelector(".saint-image-placeholder");
+            if (placeholder) placeholder.hidden = true;
+          }
+        });
+        document.querySelectorAll('[data-saint-image-credit="' + index + '"]').forEach(link => {
+          if (s.imageUrl && s.imagePage) {
+            link.href = s.imagePage;
+            link.hidden = false;
+          }
+        });
+      }));
+    }
+  }
+  function saintPortrait(s, className = "saint-card-image") {
+    const index = entries.indexOf(s);
+    return '<div class="saint-portrait-wrap"><img class="' + className + '" data-saint-image="' + index + '" alt="Portrait of ' + esc(s.en) + '" src="' + (s.imageUrl ? esc(s.imageUrl) : "") + '"' + (s.imageUrl ? "" : " hidden") + '><span class="saint-image-placeholder"' + (s.imageUrl ? " hidden" : "") + '>' + esc(s.en.charAt(0)) + '</span></div>';
+  }
   function openSaint(s){
     panelTitle.textContent=s.en;
-    output.innerHTML=`<div class="saint-detail"><button class="back-button" data-saints-back>← Back to all saints / العودة إلى اللائحة</button><p class="saint-status">${esc(s.status)} · ${esc(s.years)}</p><h3>${esc(s.en)}</h3><p class="meaning">${esc(s.place)}</p><div class="two-language"><div><div class="reference">ENGLISH</div><p>${esc(s.storyEn)}</p></div><div dir="rtl"><div class="reference">العربية</div><p class="arabic">${esc(s.storyAr)}</p></div></div><p class="meaning">Sources and further reading: <a href="https://www.vatican.va/news_services/liturgy/saints/ns_lit_doc_20040516_al-hardini_en.html" target="_blank" rel="noopener">Vatican biography of Nimatullah</a> · <a href="https://press.vatican.va/news_services/liturgy/saints/ns_lit_doc_20010610_rafqa-choboq_en.html" target="_blank" rel="noopener">Vatican biography of Rafqa</a> · <a href="https://gcatholic.org/saints/data/country-LB" target="_blank" rel="noopener">Lebanese saints and blesseds reference list</a> · <a href="https://www.vatican.va/content/benedict-xvi/en/audiences/2010/documents/hf_ben-xvi_aud_20100210.html" target="_blank" rel="noopener">Vatican biography of Anthony of Padua</a> · <a href="https://www.vatican.va/news_services/liturgy/saints/ns_lit_doc_20020616_padre-pio_en.html" target="_blank" rel="noopener">Vatican biography of Padre Pio</a> · <a href="https://www.vatican.va/content/leo-xiv/en/events/event.dir.html/content/vaticanevents/en/2025/10/19/canonizzazioni.html" target="_blank" rel="noopener">Vatican canonisation of Ignatius Maloyan</a> · <a href="https://www.vaticannews.va/en/pope/news/2026-07/pope-leo-angelus-beatification-elias-hoayek-lebanon-prayers.html" target="_blank" rel="noopener">Vatican News on Blessed Elias Hoayek</a> · <a href="https://maronite.org.au/news-events/" target="_blank" rel="noopener">Maronite Eparchy biographies and news</a> · <a href="https://www.vaticanstate.va/en/component/content/article/july-24-saint-charbel-makhlouf.html?Itemid=216&catid=51" target="_blank" rel="noopener">Eastern and Maronite Lebanese saints</a>.</p><p class="meaning">Canonisation status is shown separately from traditional veneration. Biographies are concise summaries; dates and historical details are based on published Church biographies and reference lists.</p></div>`;
+    output.innerHTML=`<div class="saint-detail"><button class="back-button" data-saints-back>← Back to all saints / العودة إلى اللائحة</button><div class="saint-detail-heading">${saintPortrait(s, "saint-detail-image")}<div><p class="saint-status">${esc(s.status)} · ${esc(s.years)}</p><h3>${esc(s.en)}</h3><p class="meaning">${esc(s.place)}</p><a class="saint-image-credit" data-saint-image-credit="${entries.indexOf(s)}" href="${s.imagePage || "#"}" target="_blank" rel="noopener"${s.imageUrl ? "" : " hidden"}>Portrait source</a></div></div><div class="two-language"><div><div class="reference">ENGLISH</div><p>${esc(s.storyEn)}</p></div><div dir="rtl"><div class="reference">العربية</div><p class="arabic">${esc(s.storyAr)}</p></div></div><p class="meaning">Sources and further reading: <a href="https://www.vatican.va/news_services/liturgy/saints/ns_lit_doc_20040516_al-hardini_en.html" target="_blank" rel="noopener">Vatican biography of Nimatullah</a> · <a href="https://press.vatican.va/news_services/liturgy/saints/ns_lit_doc_20010610_rafqa-choboq_en.html" target="_blank" rel="noopener">Vatican biography of Rafqa</a> · <a href="https://gcatholic.org/saints/data/country-LB" target="_blank" rel="noopener">Lebanese saints and blesseds reference list</a> · <a href="https://www.vatican.va/content/benedict-xvi/en/audiences/2010/documents/hf_ben-xvi_aud_20100210.html" target="_blank" rel="noopener">Vatican biography of Anthony of Padua</a> · <a href="https://www.vatican.va/news_services/liturgy/saints/ns_lit_doc_20020616_padre-pio_en.html" target="_blank" rel="noopener">Vatican biography of Padre Pio</a> · <a href="https://www.vatican.va/content/leo-xiv/en/events/event.dir.html/content/vaticanevents/en/2025/10/19/canonizzazioni.html" target="_blank" rel="noopener">Vatican canonisation of Ignatius Maloyan</a> · <a href="https://www.vaticannews.va/en/pope/news/2026-07/pope-leo-angelus-beatification-elias-hoayek-lebanon-prayers.html" target="_blank" rel="noopener">Vatican News on Blessed Elias Hoayek</a> · <a href="https://maronite.org.au/news-events/" target="_blank" rel="noopener">Maronite Eparchy biographies and news</a> · <a href="https://www.vaticanstate.va/en/component/content/article/july-24-saint-charbel-makhlouf.html?Itemid=216&catid=51" target="_blank" rel="noopener">Eastern and Maronite Lebanese saints</a>.</p><p class="meaning">Canonisation status is shown separately from traditional veneration. Biographies are concise summaries; dates and historical details are based on published Church biographies and reference lists.</p></div>`;
     output.querySelector("[data-saints-back]").addEventListener("click",renderSaints);
+    loadSaintImages([s]);
   }
   function renderSaints(){
     panelTitle.textContent="Saints from Lebanon & around the world · قدّيسو لبنان والعالم";
@@ -102,8 +145,9 @@
       alphabet.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.textContent===letter));
       const group=$("#saintsGroup").value;
       const found=entries.filter(s=>(group==="All"||s.group===group)&&(!letter||s.letter===letter)&&(s.en+" "+s.ar+" "+s.place+" "+s.status).toLowerCase().includes(q));
-      $("#saintsGrid").innerHTML=found.length?found.map((s,i)=>`<button class="saint-card" data-saint-index="${entries.indexOf(s)}"><span class="saint-letter">${esc(s.letter)}</span><span class="saint-status">${esc(s.status)}</span><h3>${esc(s.en)}</h3><p lang="ar" dir="rtl">${esc(s.ar)}</p><p>${esc(s.place)}</p></button>`).join(""):'<p class="meaning">No matching names. Try another spelling or letter.</p>';
+      $("#saintsGrid").innerHTML=found.length?found.map((s,i)=>`<button class="saint-card" data-saint-index="${entries.indexOf(s)}">${saintPortrait(s)}<div class="saint-card-copy"><span class="saint-letter">${esc(s.letter)}</span><span class="saint-status">${esc(s.status)}</span><h3>${esc(s.en)}</h3><p lang="ar" dir="rtl">${esc(s.ar)}</p><p>${esc(s.place)}</p></div></button>`).join(""):'<p class="meaning">No matching names. Try another spelling or letter.</p>';
       $("#saintsGrid").querySelectorAll("[data-saint-index]").forEach(b=>b.addEventListener("click",()=>openSaint(entries[Number(b.dataset.saintIndex)])));
+      loadSaintImages(found);
     };
     $("#saintsSearch").addEventListener("input",draw);$("#saintsGroup").addEventListener("change",draw);draw();
   }
