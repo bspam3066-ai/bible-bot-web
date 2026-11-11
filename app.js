@@ -37,7 +37,7 @@
       verseDescription:"اكتشف مقطعًا من الكتاب المقدّس بالعربية والإنجليزية.", findVerse:'اكتشف آية <span>←</span>',
       reflectionTag:"صلاة وتأمّل", reflectionTitle:"تأمّل اليوم",
       reflectionDescription:"فكرة قصيرة مستوحاة من الإيمان ترافقك في يومك.", readReflection:'اقرأ التأمّل <span>←</span>',
-      yourReading:"مساحتك الروحية", welcomePanelTitle:"ابدأ بكلمة الله",
+      yourReading:"مساحتك الروحية", welcomePanelTitle:"ابدأ بكلمة الله", exploreKicker:"أشخاص وحكايات", exploreTitle:"الإيمان حياة.", exploreIntro:"تعرّف إلى أشخاص وحكايات تساعدنا على فهم الحياة مع المسيح.", jesusCard:"حياة يسوع وكلماته ورسالته في قلب الإنجيل.", saintsTitle:"القدّيسون", saintsCard:"حكايات شجاعة وخدمة وحياة مكرّسة لله.", priestsTitle:"الكهنة", priestsCard:"تعرّف إلى دعوة الخدمة ومرافقة الجماعة.", discover:"اكتشف <span>↗</span>",
       emptyPrompt:"اختر قراءة من الأعلى وخذ لحظة للتأمّل فيها.",
       quote:"كلامك مصباح لخطاي ونور لسبيلي.",
       footer:"صُمّم ليساعدك على القراءة والتأمّل والنمو في الإيمان.",
