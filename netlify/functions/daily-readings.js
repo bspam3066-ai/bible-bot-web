@@ -4,224 +4,41 @@ import * as cheerio from "cheerio";
 const OLM_URL = "https://olm.org.lb/ar/liturgical-calendar";
 const BIBLE_API = "https://api.biblesupersearch.com/api";
 
-const BOOKS = {
-  "تك": "Genesis", "خر": "Exodus", "لا": "Leviticus",
-  "عد": "Numbers", "تث": "Deuteronomy",
-  "يش": "Joshua", "قض": "Judges", "را": "Ruth",
-  "عز": "Ezra", "نح": "Nehemiah", "طو": "Tobit",
-  "اس": "Esther", "أي": "Job", "مز": "Psalms",
-  "أم": "Proverbs", "جا": "Ecclesiastes",
-  "نش": "Song of Solomon", "حك": "Wisdom", "سي": "Sirach",
-  "أش": "Isaiah", "إش": "Isaiah", "إر": "Jeremiah",
-  "مرا": "Lamentations", "با": "Baruch", "حز": "Ezekiel",
-  "دا": "Daniel", "هو": "Hosea", "يوئ": "Joel",
-  "عا": "Amos", "عو": "Obadiah", "يون": "Jonah",
-  "مي": "Micah", "نا": "Nahum", "حب": "Habakkuk",
-  "صف": "Zephaniah", "حج": "Haggai", "زك": "Zechariah",
-  "ملا": "Malachi", "مت": "Matthew", "متى": "Matthew",
-  "مر": "Mark", "لو": "Luke", "يو": "John",
-  "أع": "Acts", "رو": "Romans", "غل": "Galatians",
-  "أف": "Ephesians", "في": "Philippians",
-  "كو": "Colossians", "عب": "Hebrews",
-  "يع": "James", "رؤ": "Revelation",
-  "يهود": "Jude"
-};
+// OLM's response is currently being decoded with the wrong character encoding.
+function fixEncoding(value) {
+  if (typeof value !== "string") return value;
 
-function normalizeDigits(value) {
-  return String(value).replace(/[٠-٩]/g, d =>
-    "٠١٢٣٤٥٦٧٨٩".indexOf(d)
-  );
-}
+  if (!/[ØÙÃ]/.test(value)) return value;
 
-function normalizeArabic(value) {
-  return normalizeDigits(value)
-    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
-    .replace(/[أإآ]/g, "ا")
-    .replace(/ى/g, "ي")
-    .replace(/[–—]/g, "-")
-    .replace(/\s+/g, " ")
-    .toLowerCase()
-    .trim();
-}
-
-function flattenData(value, path = "") {
-  if (value === null || value === undefined) return "";
-
-  if (typeof value === "string" || typeof value === "number") {
-    return `${path}: ${value}`;
+  try {
+    const fixed = Buffer.from(value, "latin1").toString("utf8");
+    return fixed.includes("\uFFFD") ? value : fixed;
+  } catch {
+    return value;
   }
+}
+
+function fixObjectEncoding(value) {
+  if (typeof value === "string") return fixEncoding(value);
 
   if (Array.isArray(value)) {
-    return value
-      .map((item, index) => flattenData(item, `${path}[${index}]`))
-      .filter(Boolean)
-      .join("\n");
+    return value.map(fixObjectEncoding);
   }
 
-  if (typeof value === "object") {
-    return Object.entries(value)
-      .map(([key, item]) =>
-        flattenData(item, path ? `${path}.${key}` : key)
-      )
-      .filter(Boolean)
-      .join("\n");
-  }
-
-  return "";
-}
-
-function preparePage(html) {
-  const $ = cheerio.load(html);
-
-  const title = $("title").text();
-
-  const appElement = $("#app").first();
-
-  const dataPage =
-    appElement.attr("data-page") ||
-    $("[data-page]").first().attr("data-page") ||
-    "";
-
-  let appData = null;
-  let appDataError = "";
-
-  if (dataPage) {
-    try {
-      appData = JSON.parse(dataPage);
-    } catch (error) {
-      appDataError = error.message;
-    }
-  }
-
-  const bodyText = $("body").text()
-    .replace(/\u00a0/g, " ")
-    .trim();
-
-  const embeddedText = appData
-    ? flattenData(appData)
-    : "";
-
-  const text = [bodyText, embeddedText]
-    .filter(Boolean)
-    .join("\n");
-
-  const scripts = $("script[src]")
-    .map((_, el) => $(el).attr("src"))
-    .get();
-
-  return {
-    $,
-    text,
-    title,
-    bodyText,
-    appData,
-    appDataError,
-    scripts
-  };
-}
-
-function findReference(text) {
-  const normalized = normalizeArabic(text);
-
-  const keys = Object.keys(BOOKS)
-    .sort((a, b) => b.length - a.length);
-
-  const alternatives = keys
-    .map(key => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("|");
-
-  const regex = new RegExp(
-    `(^|[^\\p{L}])(${alternatives})\\s*(\\d+)\\s*/\\s*(\\d+)\\s*(?:-\\s*(\\d+))?`,
-    "u"
-  );
-
-  const match = regex.exec(normalized);
-
-  if (!match) return null;
-
-  const book = BOOKS[match[2]];
-
-  if (!book) return null;
-
-  return {
-    raw: match[0].slice(match[1].length).trim(),
-    english: `${book} ${match[3]}:${match[4]}${
-      match[5] ? "-" + match[5] : ""
-    }`,
-    end: regex.lastIndex
-  };
-}
-
-function findReadingSection(text, labels, nextLabels) {
-  const normalized = normalizeArabic(text);
-  const positions = [];
-
-  for (const label of labels) {
-    const key = normalizeArabic(label);
-    let position = 0;
-
-    while ((position = normalized.indexOf(key, position)) !== -1) {
-      positions.push(position);
-      position += key.length;
-    }
-  }
-
-  positions.sort((a, b) => a - b);
-
-  for (const start of positions) {
-    const possibleEnds = nextLabels
-      .map(label =>
-        normalized.indexOf(normalizeArabic(label), start + 1)
-      )
-      .filter(position => position !== -1);
-
-    const end = possibleEnds.length
-      ? Math.min(...possibleEnds)
-      : normalized.length;
-
-    const section = normalized.slice(start, end);
-    const reference = findReference(section);
-
-    if (!reference) continue;
-
-    let reading = section.slice(reference.end).trim();
-
-    reading = reading.replace(
-      /^[“"«][^”"»]*[”"»]\s*/u,
-      ""
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        fixObjectEncoding(item)
+      ])
     );
-
-    reading = reading
-      .replace(/^[\s:،؛.!؟]+/, "")
-      .trim();
-
-    return {
-      reference,
-      reading
-    };
   }
 
-  return null;
+  return value;
 }
 
-function findMetadata(text, labels) {
-  const normalized = normalizeArabic(text);
-
-  for (const label of labels) {
-    const key = normalizeArabic(label);
-    const index = normalized.indexOf(key);
-
-    if (index === -1) continue;
-
-    const value = normalized
-      .slice(index + key.length)
-      .split("\n")[0]
-      .trim();
-
-    if (value) return value;
-  }
-
-  return "";
+function htmlToText(html) {
+  return cheerio.load(html || "").text().replace(/\s+/g, " ").trim();
 }
 
 async function getEnglishPassage(reference) {
@@ -242,119 +59,176 @@ async function getEnglishPassage(reference) {
 
   if (!Array.isArray(verses)) return "";
 
-  return verses
-    .map(verse => verse.text || "")
-    .join(" ");
+  return verses.map(verse => verse.text || "").join(" ");
 }
 
-async function enrichReading(type, section) {
-  const item = {
-    type,
-    reference: section.reference.raw,
-    englishReference: section.reference.english,
-    arabic: section.reading,
-    english: ""
-  };
+function getField(object, possibleKeys) {
+  if (!object || typeof object !== "object") return "";
 
-  try {
-    item.english = await getEnglishPassage(
-      section.reference.english
-    );
-  } catch (error) {
-    console.error(`English translation failed (${type}):`, error);
+  for (const key of possibleKeys) {
+    if (object[key] !== undefined && object[key] !== null) {
+      return object[key];
+    }
   }
 
-  return item;
+  return "";
+}
+
+function findColor(object) {
+  if (!object || typeof object !== "object") return "";
+
+  const preferredKeys = [
+    "liturgical_color",
+    "liturgicalColor",
+    "color_name",
+    "color"
+  ];
+
+  for (const key of preferredKeys) {
+    const value = object[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  for (const [key, value] of Object.entries(object)) {
+    if (
+      /liturgical.*color|color.*liturgical/i.test(key) &&
+      typeof value === "string" &&
+      value.trim()
+    ) {
+      return value.trim();
+    }
+  }
+
+  return "";
+}
+
+function getDateFromUrl(url) {
+  const match = String(url || "").match(/(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : "";
+}
+
+async function formatReading(reading, type) {
+  const reference = String(reading.reference || "").trim();
+
+  const arabic = htmlToText(reading.body_ar || "");
+
+  const excerpt = htmlToText(reading.excerpt_ar || "");
+
+  const englishReference = reference
+    .replace(/[٠-٩]/g, digit =>
+      "٠١٢٣٤٥٦٧٨٩".indexOf(digit)
+    )
+    .replace(/عب\s*/g, "Hebrews ")
+    .replace(/يو\s*/g, "John ")
+    .replace(/مت\s*/g, "Matthew ")
+    .replace(/مر\s*/g, "Mark ")
+    .replace(/لو\s*/g, "Luke ")
+    .replace(/رو\s*/g, "Romans ")
+    .replace(/أع\s*/g, "Acts ")
+    .replace(/غل\s*/g, "Galatians ")
+    .replace(/أف\s*/g, "Ephesians ")
+    .replace(/في\s*/g, "Philippians ")
+    .replace(/كو\s*/g, "Colossians ")
+    .replace(/\s*\/\s*/g, ":")
+    .replace(/\s*-\s*/g, "-")
+    .trim();
+
+  let english = "";
+
+  try {
+    english = await getEnglishPassage(englishReference);
+  } catch (error) {
+    console.error(`English translation failed for ${type}:`, error);
+  }
+
+  return {
+    type,
+    reference,
+    englishReference,
+    arabic,
+    english
+  };
 }
 
 export default async () => {
-  let diagnostic = {};
-
   try {
     const response = await fetch(OLM_URL, {
       redirect: "follow",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "text/html,application/xhtml+xml",
         "Accept-Language": "ar,en-US;q=0.9,en;q=0.8"
       }
     });
-
-    const html = await response.text();
 
     if (!response.ok) {
       throw new Error(`OLM returned HTTP ${response.status}`);
     }
 
-    const page = preparePage(html);
+    const html = await response.text();
+    const $ = cheerio.load(html);
 
-    const {
-      text,
-      title,
-      bodyText,
-      appData,
-      appDataError,
-      scripts
-    } = page;
+    const dataPage =
+      $("#app").attr("data-page") ||
+      $("[data-page]").first().attr("data-page");
 
-    diagnostic = {
-      status: response.status,
-      finalUrl: response.url,
-      contentType: response.headers.get("content-type"),
-      rawHtmlLength: html.length,
-      bodyTextLength: bodyText.length,
-      embeddedDataFound: Boolean(appData),
-      embeddedDataError: appDataError,
-      embeddedDataKeys: appData
-        ? Object.keys(appData)
-        : [],
-      embeddedDataPreview: appData
-        ? JSON.stringify(appData).slice(0, 5000)
-        : "",
-      pageTextLength: text.length,
-      pageTextPreview: text.slice(0, 5000),
-      scripts
-    };
-
-    const epistleSection = findReadingSection(
-      text,
-      ["الرسالة", "رسالة", "Letter", "Epistle"],
-      ["الإنجيل", "انجيل", "Gospel", "اللون الليتورجي"]
-    );
-
-    const gospelSection = findReadingSection(
-      text,
-      ["الإنجيل", "انجيل", "Gospel"],
-      ["اللون الليتورجي", "الرسالة", "رسالة", "Letter", "Epistle"]
-    );
-
-    if (!epistleSection || !gospelSection) {
-      console.error("OLM parsing failed:", diagnostic);
-
-      return Response.json({
-        error: "OLM readings could not be extracted.",
-        diagnostic
-      }, {
-        status: 502
-      });
+    if (!dataPage) {
+      throw new Error("OLM application data was not found.");
     }
 
+    let appData;
+
+    try {
+      appData = JSON.parse(dataPage);
+    } catch {
+      throw new Error("Could not read OLM application data.");
+    }
+
+    appData = fixObjectEncoding(appData);
+
+    const dayData = appData?.props?.day?.data;
+
+    if (!dayData) {
+      throw new Error("OLM day data was not found.");
+    }
+
+    const readings = dayData.readings;
+
+    if (!Array.isArray(readings) || readings.length < 2) {
+      throw new Error("OLM did not provide both daily readings.");
+    }
+
+    const orderedReadings = [...readings].sort(
+      (a, b) => Number(a.pos ?? 0) - Number(b.pos ?? 0)
+    );
+
+    const epistleData = orderedReadings[0];
+    const gospelData = orderedReadings[1];
+
     const [epistle, gospel] = await Promise.all([
-      enrichReading("epistle", epistleSection),
-      enrichReading("gospel", gospelSection)
+      formatReading(epistleData, "epistle"),
+      formatReading(gospelData, "gospel")
     ]);
 
-    const liturgicalColor = findMetadata(text, [
-      "اللون الليتورجيّ",
-      "اللون الليتورجي",
-      "Liturgical color"
+    const pageUrl = dayData.web_url || response.url;
+
+    const color = findColor(dayData);
+
+    const liturgicalDay = getField(dayData, [
+      "name_ar",
+      "title_ar",
+      "day_name_ar",
+      "liturgical_day"
     ]);
 
     return Response.json({
-      source: OLM_URL,
-      date: "",
-      liturgicalDay: "",
-      liturgicalColor,
+      source: pageUrl,
+      date: getDateFromUrl(pageUrl),
+      liturgicalDay,
+      liturgicalColor: color,
       epistle,
       gospel
     }, {
@@ -367,8 +241,7 @@ export default async () => {
     console.error("Daily readings error:", error);
 
     return Response.json({
-      error: error.message || "Unable to load OLM readings.",
-      diagnostic
+      error: error.message || "Unable to load daily readings."
     }, {
       status: 502
     });
