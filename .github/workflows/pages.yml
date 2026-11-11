@@ -1,0 +1,52 @@
+name: Deploy Verbum Dei to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "15 3 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the OLM scraper dependency
+        run: |
+          npm install --prefix "$RUNNER_TEMP/olm-deps" cheerio@1.0.0
+          ln -s "$RUNNER_TEMP/olm-deps/node_modules" "$GITHUB_WORKSPACE/node_modules"
+
+      - name: Assemble static website
+        run: |
+          mkdir -p _site/data
+          cp index.html app.js botData.js saints.js style.css _site/
+          node scripts/generate-data.mjs
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
