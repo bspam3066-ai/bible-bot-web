@@ -40,37 +40,82 @@ function normalizeArabic(value) {
     .replace(/ى/g, "ي")
     .replace(/[–—]/g, "-")
     .replace(/\s+/g, " ")
+    .toLowerCase()
     .trim();
+}
+
+function flattenData(value, path = "") {
+  if (value === null || value === undefined) return "";
+
+  if (typeof value === "string" || typeof value === "number") {
+    return `${path}: ${value}`;
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item, index) => flattenData(item, `${path}[${index}]`))
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value)
+      .map(([key, item]) =>
+        flattenData(item, path ? `${path}.${key}` : key)
+      )
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  return "";
 }
 
 function preparePage(html) {
   const $ = cheerio.load(html);
 
-  // Capture scripts BEFORE removing them.
-  const scripts = $("script")
-    .map((_, el) => ({
-      src: $(el).attr("src") || "",
-      preview: $(el).text().slice(0, 500)
-    }))
-    .get()
-    .slice(0, 20);
-
   const title = $("title").text();
 
-  const bodyText = $("body").text();
-  const rootText = $.root().text();
+  const appElement = $("#app").first();
 
-  const text = (bodyText || rootText)
+  const dataPage =
+    appElement.attr("data-page") ||
+    $("[data-page]").first().attr("data-page") ||
+    "";
+
+  let appData = null;
+  let appDataError = "";
+
+  if (dataPage) {
+    try {
+      appData = JSON.parse(dataPage);
+    } catch (error) {
+      appDataError = error.message;
+    }
+  }
+
+  const bodyText = $("body").text()
     .replace(/\u00a0/g, " ")
-    .replace(/\r/g, "\n")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n\s*\n+/g, "\n")
     .trim();
+
+  const embeddedText = appData
+    ? flattenData(appData)
+    : "";
+
+  const text = [bodyText, embeddedText]
+    .filter(Boolean)
+    .join("\n");
+
+  const scripts = $("script[src]")
+    .map((_, el) => $(el).attr("src"))
+    .get();
 
   return {
     $,
     text,
     title,
+    bodyText,
+    appData,
+    appDataError,
     scripts
   };
 }
@@ -95,6 +140,7 @@ function findReference(text) {
   if (!match) return null;
 
   const book = BOOKS[match[2]];
+
   if (!book) return null;
 
   return {
@@ -108,7 +154,6 @@ function findReference(text) {
 
 function findReadingSection(text, labels, nextLabels) {
   const normalized = normalizeArabic(text);
-
   const positions = [];
 
   for (const label of labels) {
@@ -125,7 +170,9 @@ function findReadingSection(text, labels, nextLabels) {
 
   for (const start of positions) {
     const possibleEnds = nextLabels
-      .map(label => normalized.indexOf(normalizeArabic(label), start + 1))
+      .map(label =>
+        normalized.indexOf(normalizeArabic(label), start + 1)
+      )
       .filter(position => position !== -1);
 
     const end = possibleEnds.length
@@ -148,10 +195,33 @@ function findReadingSection(text, labels, nextLabels) {
       .replace(/^[\s:،؛.!؟]+/, "")
       .trim();
 
-    return { reference, reading };
+    return {
+      reference,
+      reading
+    };
   }
 
   return null;
+}
+
+function findMetadata(text, labels) {
+  const normalized = normalizeArabic(text);
+
+  for (const label of labels) {
+    const key = normalizeArabic(label);
+    const index = normalized.indexOf(key);
+
+    if (index === -1) continue;
+
+    const value = normalized
+      .slice(index + key.length)
+      .split("\n")[0]
+      .trim();
+
+    if (value) return value;
+  }
+
+  return "";
 }
 
 async function getEnglishPassage(reference) {
@@ -172,7 +242,9 @@ async function getEnglishPassage(reference) {
 
   if (!Array.isArray(verses)) return "";
 
-  return verses.map(verse => verse.text || "").join(" ");
+  return verses
+    .map(verse => verse.text || "")
+    .join(" ");
 }
 
 async function enrichReading(type, section) {
@@ -210,38 +282,50 @@ export default async () => {
 
     const html = await response.text();
 
-    console.log("RAW HTML LENGTH:", html.length);
-    console.log("RAW HTML START:", JSON.stringify(html.slice(0, 3000)));
-
     if (!response.ok) {
       throw new Error(`OLM returned HTTP ${response.status}`);
     }
 
     const page = preparePage(html);
-    const { text, title, scripts } = page;
+
+    const {
+      text,
+      title,
+      bodyText,
+      appData,
+      appDataError,
+      scripts
+    } = page;
 
     diagnostic = {
       status: response.status,
       finalUrl: response.url,
       contentType: response.headers.get("content-type"),
       rawHtmlLength: html.length,
-      rawHtmlPreview: html.slice(0, 3000),
-      title,
+      bodyTextLength: bodyText.length,
+      embeddedDataFound: Boolean(appData),
+      embeddedDataError: appDataError,
+      embeddedDataKeys: appData
+        ? Object.keys(appData)
+        : [],
+      embeddedDataPreview: appData
+        ? JSON.stringify(appData).slice(0, 5000)
+        : "",
       pageTextLength: text.length,
-      pageTextPreview: text.slice(0, 2500),
+      pageTextPreview: text.slice(0, 5000),
       scripts
     };
 
     const epistleSection = findReadingSection(
       text,
-      ["الرسالة", "رسالة"],
-      ["الإنجيل", "انجيل", "اللون الليتورجي"]
+      ["الرسالة", "رسالة", "Letter", "Epistle"],
+      ["الإنجيل", "انجيل", "Gospel", "اللون الليتورجي"]
     );
 
     const gospelSection = findReadingSection(
       text,
-      ["الإنجيل", "انجيل"],
-      ["اللون الليتورجي", "الرسالة", "رسالة"]
+      ["الإنجيل", "انجيل", "Gospel"],
+      ["اللون الليتورجي", "الرسالة", "رسالة", "Letter", "Epistle"]
     );
 
     if (!epistleSection || !gospelSection) {
@@ -260,11 +344,17 @@ export default async () => {
       enrichReading("gospel", gospelSection)
     ]);
 
+    const liturgicalColor = findMetadata(text, [
+      "اللون الليتورجيّ",
+      "اللون الليتورجي",
+      "Liturgical color"
+    ]);
+
     return Response.json({
       source: OLM_URL,
       date: "",
       liturgicalDay: "",
-      liturgicalColor: "",
+      liturgicalColor,
       epistle,
       gospel
     }, {
