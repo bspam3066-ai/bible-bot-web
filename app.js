@@ -393,12 +393,26 @@
     const key="verbum-quiz-ar-v1";
     let cache={};try{cache=JSON.parse(localStorage.getItem(key)||"{}");}catch{}
     if(cache[value]) return cache[value];
+    // Try Google's lightweight translator first, then MyMemory as a fallback.
     try{
       const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q="+encodeURIComponent(value);
-      const response=await fetch(url);if(!response.ok)throw new Error("Translation unavailable");
+      const response=await fetch(url);
+      if(response.ok){
+        const data=await response.json();
+        const translated=(data[0]||[]).map(part=>part[0]||"").join("").trim();
+        if(translated){
+          cache[value]=translated;try{localStorage.setItem(key,JSON.stringify(cache));}catch{}
+          return translated;
+        }
+      }
+    }catch{}
+    try{
+      const url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(value)+"&langpair=en%7Car";
+      const response=await fetch(url);
+      if(!response.ok)throw new Error("Translation unavailable");
       const data=await response.json();
-      const translated=(data[0]||[]).map(part=>part[0]||"").join("").trim();
-      if(!translated)throw new Error("Empty translation");
+      const translated=String(data.responseData?.translatedText||"").trim();
+      if(!translated||data.responseStatus!==200)throw new Error("Empty translation");
       cache[value]=translated;try{localStorage.setItem(key,JSON.stringify(cache));}catch{}
       return translated;
     }catch{return "";}
