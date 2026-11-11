@@ -397,8 +397,17 @@
     let available=quizQuestions.filter(q=>!used.has(q.id));
     // Begin a fresh cycle only after every question in the bank has been used.
     if(available.length<QUIZ_ROUND_SIZE){used=new Set();available=quizQuestions.slice();}
-    for(let i=available.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[available[i],available[j]]=[available[j],available[i]];}
-    quizRound=available.slice(0,Math.min(QUIZ_ROUND_SIZE,available.length)).map(q=>{
+    // Keep rounds approachable: most questions come from the familiar core bank.
+    const familiarIds=new Set(quizQuestions.filter(q=>/^b\\d{3}$/.test(q.id)||/^x\\d{3}$/.test(q.id)||(/^z\\d{4}$/.test(q.id)&&Number(q.id.slice(1))<=150)).map(q=>q.id));
+    const familiar=available.filter(q=>familiarIds.has(q.id));
+    const variety=available.filter(q=>!familiarIds.has(q.id));
+    const shuffle=list=>{for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}return list;};
+    shuffle(familiar);shuffle(variety);
+    const selected=familiar.slice(0,Math.min(8,familiar.length));
+    selected.push(...variety.slice(0,Math.max(0,QUIZ_ROUND_SIZE-selected.length)));
+    if(selected.length<QUIZ_ROUND_SIZE)selected.push(...familiar.slice(selected.length,QUIZ_ROUND_SIZE));
+    shuffle(selected);
+    quizRound=selected.slice(0,Math.min(QUIZ_ROUND_SIZE,selected.length)).map(q=>{
       const choices=q.a.map((value,index)=>({value,correct:index===q.correct}));
       for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
       return {...q,a:choices.map(x=>x.value),correct:choices.findIndex(x=>x.correct)};
