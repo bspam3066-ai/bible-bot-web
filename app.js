@@ -2,6 +2,27 @@
   const $ = (selector) => document.querySelector(selector);
   const output = $("#output");
   const panelTitle = $("#panelTitle");
+  // Choose a different Jesus artwork whenever the site is opened.
+  const jesusArtwork = [
+    { file: "Jesus_seated.png", credit: "Alexandre Bida · Public Domain" },
+    { file: "Jesus_Christ_-_Hofmann.jpg", credit: "Heinrich Hofmann · Public Domain" },
+    { file: "Jezus_Christus.jpg", credit: "Anonymous · CC0" },
+    { file: "Jesuschrist.jpg", credit: "Hanna Asfours · Public Domain" },
+    { file: "Jesus_ascending_to_heaven.jpg", credit: "John Singleton Copley · Public Domain" }
+  ];
+  const heroImage = document.querySelector(".hero-art img");
+  if (heroImage) {
+    let previous = "";
+    try { previous = localStorage.getItem("verbum-hero-artwork") || ""; } catch {}
+    const choices = jesusArtwork.filter(item => item.file !== previous);
+    const selected = choices[Math.floor(Math.random() * choices.length)] || jesusArtwork[0];
+    heroImage.src = "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(selected.file) + "?width=1000";
+    heroImage.alt = "Artwork depicting Jesus Christ";
+    const credit = document.querySelector(".hero-art .image-caption small");
+    if (credit) credit.textContent = selected.credit + " · Wikimedia Commons";
+    try { localStorage.setItem("verbum-hero-artwork", selected.file); } catch {}
+  }
+
   const settingsDialog = $("#settingsDialog");
   const defaults = { language: "both", fontSize: "normal", theme: "midnight" };
   let settings = { ...defaults, ...readSettings() };
