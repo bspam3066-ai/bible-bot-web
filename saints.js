@@ -49,7 +49,7 @@
   }
 
   // Keep the Lebanon collection focused on widely recognised figures and clearly documented Church causes.
-  const removeNames = new Set(["John Mark","Nilus of Egypt","Peleus","Silvanus","Tyrannio of Tyre","Zenobius of Sidon","Vulpian of Tyre","Cyril of Heliopolis","Dorotheus","Nerses I the Great","Frumentius","Leontius","Nonnus of Edessa","Theodosia of Tyre","Eudocia of Heliopolis","Pamphilus of Beirut","Christina of Tyre","Leontios of Tripoli","Hypatios of Tripoli","Theodoulos of Tripoli","The 500 Martyrs of Tyre","The 350 Disciples of Saint Maron","Marina the Monk","Antonios Tarabay","Béchara Abou Mrad","Yaqub Haddad","Michael the Archangel","Gabriel the Archangel","Raphael the Archangel"]);
+  const removeNames = new Set(["John Mark","Nilus of Egypt","Peleus","Silvanus","Tyrannio of Tyre","Zenobius of Sidon","Vulpian of Tyre","Cyril of Heliopolis","Dorotheus","Nerses I the Great","Frumentius","Leontius","Nonnus of Edessa","Theodosia of Tyre","Eudocia of Heliopolis","Pamphilus of Beirut","Christina of Tyre","Leontios of Tripoli","Hypatios of Tripoli","Theodoulos of Tripoli","The 500 Martyrs of Tyre","The 350 Disciples of Saint Maron","Marina the Monk","Béchara Abou Mrad","Yaqub Haddad","Michael the Archangel","Gabriel the Archangel","Raphael the Archangel"]);
   const deduped = new Map();
   for (const entry of entries) {
     if (removeNames.has(entry.en)) continue;
