@@ -233,16 +233,38 @@
     steps.push({en:"Conclude with the Hail Holy Queen and the Sign of the Cross",ar:"اختم بصلاة السلام عليكِ يا ملكة، ثم إشارة الصليب"});
     return steps;
   }
+
+  function rosaryPrayerWords(step){
+    const s=step.en;
+    if(s.includes("Our Father"))return {en:"Our Father, who art in heaven, hallowed be thy name; thy kingdom come; thy will be done on earth as it is in heaven. Give us this day our daily bread; and forgive us our trespasses, as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.",ar:"أبانا الذي في السماوات، ليتقدّس اسمك، ليأتِ ملكوتك، لتكن مشيئتك كما في السماء كذلك على الأرض. خبزنا كفافنا أعطنا اليوم، واغفر لنا ذنوبنا كما نحن نغفر لمن أخطأ إلينا، ولا تدخلنا في التجربة، لكن نجّنا من الشرير. آمين."};
+    if(s.includes("Hail Mary")||s.includes("السلام عليك يا مريم"))return {en:"Hail Mary, full of grace, the Lord is with thee. Blessed art thou among women, and blessed is the fruit of thy womb, Jesus. Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen.",ar:"السلام عليك يا مريم، يا ممتلئة نعمة، الرب معك. مباركة أنتِ في النساء، ومباركة ثمرة بطنكِ يسوع. يا قديسة مريم، يا والدة الله، صلّي لأجلنا نحن الخطأة، الآن وفي ساعة موتنا. آمين."};
+    if(s.includes("Glory Be"))return {en:"Glory be to the Father, and to the Son, and to the Holy Spirit; as it was in the beginning, is now, and ever shall be, world without end. Amen.",ar:"المجد للآب والابن والروح القدس، كما كان في البدء والآن وكلّ أوان وإلى دهر الداهرين. آمين."};
+    if(s.includes("Fatima Prayer"))return {en:"O my Jesus, forgive us our sins, save us from the fires of hell, and lead all souls to Heaven, especially those most in need of your mercy. Amen.",ar:"يا يسوعي، اغفر لنا خطايانا، ونجّنا من نار جهنّم، وخذ إلى السماء جميع النفوس، ولا سيّما أكثرها احتياجًا إلى رحمتك. آمين."};
+    if(s.includes("Apostles’ Creed"))return {en:"I believe in God, the Father almighty, Creator of heaven and earth, and in Jesus Christ, his only Son, our Lord, who was conceived by the Holy Spirit, born of the Virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried; he descended into hell; on the third day he rose again from the dead; he ascended into heaven, and is seated at the right hand of God the Father almighty; from there he will come to judge the living and the dead. I believe in the Holy Spirit, the holy Catholic Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and life everlasting. Amen.",ar:"أؤمن بالله، الآب القدير، خالق السماء والأرض، وبابنه الوحيد يسوع المسيح ربّنا، الذي حُبل به من الروح القدس، ووُلد من مريم العذراء، وتألم على عهد بيلاطس البنطي، وصُلب ومات ودُفن، ونزل إلى الجحيم، وقام في اليوم الثالث من بين الأموات، وصعد إلى السماوات، وجلس عن يمين الله الآب القدير، ومن هناك يأتي ليدين الأحياء والأموات. أؤمن بالروح القدس، والكنيسة المقدسة الجامعة، وشركة القديسين، ومغفرة الخطايا، وقيامة الجسد، والحياة الأبدية. آمين."};
+    if(s.includes("Hail Holy Queen"))return {en:"Hail, holy Queen, Mother of mercy, our life, our sweetness and our hope. To thee do we cry, poor banished children of Eve. To thee do we send up our sighs, mourning and weeping in this valley of tears. Turn then, most gracious Advocate, thine eyes of mercy toward us; and after this our exile, show unto us the blessed fruit of thy womb, Jesus. O clement, O loving, O sweet Virgin Mary. Pray for us, O holy Mother of God, that we may be made worthy of the promises of Christ. Amen.",ar:"السلام عليكِ يا ملكة، يا أمّ الرحمة، يا حياتنا وحلاوتنا ورجاءنا. إليكِ نصرخ نحن أبناء حواء المنفيّين. إليكِ نرفع زفراتنا نائحين وباكين في هذا الوادي من الدموع. فالتفتي إلينا يا شفيعتنا الحنونة، وأرينا بعد هذا المنفى يسوع ثمرة بطنكِ المباركة. يا حنونة، يا رؤوفة، يا عذراء مريم الحلوة. صلّي لأجلنا يا والدة الله القديسة، لكي نستحق مواعيد المسيح. آمين."};
+    if(s.includes("Sign of the Cross"))return {en:"In the name of the Father, and of the Son, and of the Holy Spirit. Amen.",ar:"باسم الآب والابن والروح القدس، الإله الواحد. آمين."};
+    return {en:"Take a moment to pray and meditate on this mystery.",ar:"خذ لحظة للصلاة والتأمّل في هذا السرّ."};
+  }
+  async function showGospelFeature(){
+    setPanel("Gospel of the Day · إنجيل اليوم",'<p class="loading">Loading today’s Gospel… / جارٍ تحميل إنجيل اليوم…</p>');
+    try{
+      const data=await fetchJson("./data/daily-readings.json"),g=data.gospel;
+      if(!g||(!g.english&&!g.arabic))throw new Error("The Gospel text is not available right now.");
+      const body=settings.language==="en"?`<div class="reference">${escapeHtml(g.englishReference||g.reference||"Gospel")}</div><p class="scripture">${escapeHtml(g.english||"English text unavailable.")}</p>`:settings.language==="ar"?`<div class="reference">${escapeHtml(g.reference||"الإنجيل")}</div><p class="scripture arabic" dir="rtl">${escapeHtml(g.arabic||"النص العربي غير متاح.")}</p>`:`<div class="two-language"><div><div class="reference">ENGLISH · ${escapeHtml(g.englishReference||g.reference||"Gospel")}</div><p class="scripture">${escapeHtml(g.english||"English text unavailable.")}</p></div><div dir="rtl"><div class="reference">العربية · ${escapeHtml(g.reference||"الإنجيل")}</div><p class="scripture arabic" dir="rtl">${escapeHtml(g.arabic||"النص العربي غير متاح.")}</p></div></div>`;
+      setPanel("Gospel of the Day · إنجيل اليوم",`<p class="meaning">${escapeHtml(data.liturgicalDay||"Today's liturgy")} · ${escapeHtml(data.date||"")}</p><article class="reading-block">${body}</article><div class="feature-hero"><h3>Pause and reflect</h3><p class="arabic" dir="rtl">توقّف وتأمّل</p><ol class="reflection-questions"><li>What word or moment in this Gospel stays with you?</li><li>What might Jesus be inviting you to do today?</li><li>Who could you treat with greater kindness because of this Gospel?</li></ol><ol class="reflection-questions arabic" dir="rtl"><li>ما الكلمة أو اللحظة التي بقيت في قلبك من هذا الإنجيل؟</li><li>إلى ماذا يدعوك يسوع اليوم؟</li><li>كيف يمكنك أن تعامل أحدًا بمحبّة أكبر؟</li></ol></div><button class="text-button" data-action="daily">Read the Epistle too ↗</button><p class="meaning">Daily reading source: OLM Maronite Liturgical Calendar. Reflection questions are original prompts, not official Church commentary.</p>`);
+    }catch(error){setPanel("Gospel unavailable · تعذّر تحميل الإنجيل",`<p class="error-message">${escapeHtml(error.message)}</p><button class="text-button" data-action="daily">Try daily readings ↗</button>`);}
+  }
+
   function showRosary() {
     const m=rosaryMysteries[rosaryState.mystery], steps=rosaryStepList();
-    const index=Math.min(rosaryState.phase,steps.length-1), step=steps[index];
+    const index=Math.min(rosaryState.phase,steps.length-1), step=steps[index], words=rosaryPrayerWords(step);
     const progress=Math.round((index/(steps.length-1))*100);
     setPanel("Pray the Rosary · صلِّ المسبحة",`
       <div class="feature-hero"><span class="feature-kicker">VERBUM DEI · PRAYER GUIDE</span><h3>Walk through the Rosary</h3><p>Take your time. You can pause or restart whenever you wish.</p></div>
       <div class="feature-toolbar"><label for="rosaryMystery">Choose the mysteries / اختر الأسرار</label><select id="rosaryMystery">${Object.entries(rosaryMysteries).map(([id,x])=>`<option value="${id}" ${id===rosaryState.mystery?"selected":""}>${x.en} · ${x.ar}</option>`).join("")}</select></div>
       <p class="meaning">${m.days} · ${m.en} / ${m.ar}</p>
       <div class="progress-track"><span style="width:${progress}%"></span></div><p class="reference">PRAYER ${index+1} OF ${steps.length}</p>
-      <article class="prayer-entry rosary-current"><h3>${escapeHtml(step.en)}</h3><p class="arabic" lang="ar" dir="rtl">${escapeHtml(step.ar)}</p><p class="meaning">Mystery ${Math.min(5,Math.max(1,Math.ceil(Math.max(0,index-7)/12)))} of 5 · Take a quiet moment.</p></article>
+      <article class="prayer-entry rosary-current"><h3>${escapeHtml(step.en)}</h3><p class="meaning">${escapeHtml(step.ar)}</p><div class="two-language"><p class="prayer-text">${escapeHtml(words.en)}</p><p class="prayer-text arabic" lang="ar" dir="rtl">${escapeHtml(words.ar)}</p></div><p class="meaning">Mystery ${Math.min(5,Math.max(1,Math.ceil(Math.max(0,index-7)/12)))} of 5 · Take a quiet moment.</p></article>
       <div class="feature-actions"><button class="quiet-button" data-rosary-reset>Restart</button><button class="primary-button" data-rosary-next>${index===steps.length-1?"Finish":"Next prayer →"}</button></div>
       <p class="meaning">The guide helps you keep your place; pray the full traditional texts aloud or from your own prayer book. / هذا الدليل يساعدك على متابعة ترتيب الصلاة.</p>`);
   }
@@ -304,7 +326,7 @@
     if (view === "verse") return showRandomVerse();
     if (view === "prayers") return showPrayers();
     if (view === "rosary") return showRosary();
-    if (view === "gospel") return showDailyReadings();
+    if (view === "gospel") return showGospelFeature();
     if (view === "saint-day") return showSaintOfDay();
     if (view === "quiz") { quizIndex=0; quizScore=0; quizAnswered=false; return showQuiz(); }
     if (view === "calendar") return showCalendar();
@@ -325,7 +347,7 @@
     if(event.target.closest("[data-rosary-reset]")){rosaryState.phase=0;showRosary();return;}
     if(event.target.closest("[data-rosary-next]")){const total=rosaryStepList().length;rosaryState.phase=rosaryState.phase>=total-1?0:rosaryState.phase+1;showRosary();return;}
     const quizAnswer=event.target.closest("[data-quiz-answer]");
-    if(quizAnswer&&!quizAnswered){const q=quizQuestions[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();return;}
+    if(quizAnswer&&!quizAnswered){const q=quizQuestions[quizIndex];quizAnswered=true;if(Number(quizAnswer.dataset.quizAnswer)===q.correct)quizScore++;showQuiz();const fb=$("#quizFeedback");if(fb)fb.textContent=(Number(quizAnswer.dataset.quizAnswer)===q.correct?"Correct! ":"Not quite. ")+q.why+" / "+q.ar;return;}
     if(event.target.closest("[data-quiz-next]")&&quizAnswered){quizIndex++;quizAnswered=false;showQuiz();return;}
     if(event.target.closest("[data-quiz-restart]")){quizIndex=0;quizScore=0;quizAnswered=false;showQuiz();return;}
     if(event.target.closest("[data-calendar-prev]")){calendarMonth--;if(calendarMonth<0){calendarMonth=11;calendarYear--;}showCalendar();return;}
