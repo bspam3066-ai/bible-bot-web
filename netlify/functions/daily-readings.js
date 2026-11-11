@@ -1,9 +1,9 @@
+l
 import * as cheerio from "cheerio";
 
 const OLM_URL = "https://www.olm.org.lb/ar/liturgical-calendar";
 const BIBLE_API = "https://api.biblesupersearch.com/api";
 
-// Common OLM Arabic book abbreviations mapped to English names accepted by Bible SuperSearch.
 const BOOKS = {
   "تك":"Genesis","خر":"Exodus","لا":"Leviticus","عد":"Numbers","تث":"Deuteronomy",
   "يش":"Joshua","قض":"Judges","را":"Ruth","1 صم":"1 Samuel","2 صم":"2 Samuel",
@@ -25,81 +25,150 @@ const BOOKS = {
 function normalizeDigits(text) {
   return text.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 }
+
 function cleanLines(html) {
   const withBreaks = html
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|li|h[1-6]|section|article|tr)>/gi, "\n");
+
   const $ = cheerio.load(withBreaks);
-  return $("body").text().split(/\r?\n/).map(s => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+
+  return $("body").text()
+    .split(/\r?\n/)
+    .map(s => s.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
 }
-function findLine(lines, patterns) {
-  for (const line of lines) {
-    for (const pattern of patterns) {
-      const match = line.match(pattern);
-      if (match?.[1]) return match[1].trim();
+
+// Supports labels and references on separate lines.
+function findSectionValue(lines, labels) {
+  for (let i = 0; i < lines.length; i++) {
+    for (const label of labels) {
+      const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = lines[i].match(
+        new RegExp("^" + escaped + "\\s*[:：]?\\s*(.*)$")
+      );
+
+      if (match) {
+        if (match[1].trim()) return match[1].trim();
+
+        // Reference is on the next non-empty line.
+        return lines[i + 1] || "";
+      }
     }
   }
+
   return "";
 }
+
 function extractReference(value) {
   const normalized = normalizeDigits(value)
     .replace(/[–—]/g, "-")
     .replace(/\s+/g, " ")
     .trim();
-  const match = normalized.match(/^(.+?)\s+(\d+)\s*[/：:]\s*(\d+)\s*(?:-\s*(\d+))?$/);
+
+  // Allows both "عب9 / 15 - 23" and "يو 10 / 11 - 16".
+  const match = normalized.match(
+    /^(.+?)\s*(\d+)\s*[/：:]\s*(\d+)\s*(?:-\s*(\d+))?$/
+  );
+
   if (!match) return { raw: normalized, english: null };
+
   const bookRaw = match[1].trim();
   const book = BOOKS[bookRaw] || BOOKS[bookRaw.replace(/\./g, "")];
+
   if (!book) return { raw: normalized, english: null };
+
   return {
     raw: normalized,
     english: `${book} ${match[2]}:${match[3]}${match[4] ? "-" + match[4] : ""}`
   };
 }
+
 async function getPassage(reference, bible) {
   const url = new URL(BIBLE_API);
   url.searchParams.set("bible", bible);
   url.searchParams.set("reference", reference);
   url.searchParams.set("data_format", "minimal");
+
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`Bible API returned ${response.status}`);
+
+  if (!response.ok) {
+    throw new Error(`Bible API returned ${response.status}`);
+  }
+
   const payload = await response.json();
   const verses = payload.results?.[bible];
+
   if (!Array.isArray(verses) || !verses.length) return "";
+
   return verses.map(v => v.text).join(" ");
 }
 
 export default async () => {
   try {
     const response = await fetch(OLM_URL, {
-      headers: { "user-agent": "VerbumDeiCatholicWebsite/1.0 (daily liturgical readings)" }
+      headers: {
+        "user-agent": "VerbumDeiCatholicWebsite/1.0 (daily liturgical readings)"
+      }
     });
-    if (!response.ok) throw new Error(`OLM returned ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error(`OLM returned ${response.status}`);
+    }
+
     const html = await response.text();
     const lines = cleanLines(html);
 
-    const epistleLine = findLine(lines, [/^(?:الرسالة|رسالة)\s*[:：]?\s*(.+)$/]);
-    const gospelLine = findLine(lines, [/^(?:الإنجيل|إنجيل)\s*[:：]?\s*(.+)$/]);
-    const colorLine = findLine(lines, [/^اللون\s*الليتورجيّ?\s*[:：]?\s*(.+)$/]);
-    const dayLine = findLine(lines, [/^(?:الروزنامة الليتورجيّة|الروزنامة الليتورجية)\s*[-–:]?\s*(.+)$/]);
-    const dateLine = lines.find(line => /(?:الأحد|الإثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت).*\d{1,2}/.test(line)) || "";
+    const epistleLine = findSectionValue(lines, ["الرسالة", "رسالة"]);
+    const gospelLine = findSectionValue(lines, ["الإنجيل", "إنجيل"]);
+
+    const colorLine = findSectionValue(lines, [
+      "اللون الليتورجيّ",
+      "اللون الليتورجي"
+    ]);
+
+    const dayLine = findSectionValue(lines, [
+      "الروزنامة الليتورجيّة",
+      "الروزنامة الليتورجية"
+    ]);
+
+    const dateLine = lines.find(line =>
+      /(?:الأحد|الإثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت).*\d{1,2}/.test(line)
+    ) || "";
 
     if (!epistleLine || !gospelLine) {
-      throw new Error("Could not identify the Epistle and Gospel references on the OLM page. The page layout may have changed.");
+      throw new Error(
+        "Could not find the OLM Epistle and Gospel references."
+      );
     }
 
     const epistleRef = extractReference(epistleLine);
     const gospelRef = extractReference(gospelLine);
 
     const enrich = async (type, ref) => {
-      const item = { type, reference: ref.raw, englishReference: ref.english, arabic: "", english: "" };
+      const item = {
+        type,
+        reference: ref.raw,
+        englishReference: ref.english,
+        arabic: "",
+        english: ""
+      };
+
       if (!ref.english) return item;
+
       const results = await Promise.allSettled([
         getPassage(ref.english, "svd"),
         getPassage(ref.english, "web")
       ]);
-      if (results[0].status === "fulfilled") item.arabic = results[0].value;
-      if (results[1].status === "fulfilled") item.english = results[1].value;
+
+      if (results[0].status === "fulfilled") {
+        item.arabic = results[0].value;
+      }
+
+      if (results[1].status === "fulfilled") {
+        item.english = results[1].value;
+      }
+
       return item;
     };
 
@@ -115,8 +184,13 @@ export default async () => {
       liturgicalColor: colorLine,
       epistle,
       gospel
-    }, { headers: { "cache-control": "public, max-age=1800" } });
+    }, {
+      headers: { "cache-control": "public, max-age=1800" }
+    });
+
   } catch (error) {
-    return Response.json({ error: error.message || "Unable to load OLM readings." }, { status: 502 });
+    return Response.json({
+      error: error.message || "Unable to load OLM readings."
+    }, { status: 502 });
   }
 };
