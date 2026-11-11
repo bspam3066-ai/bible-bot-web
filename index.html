@@ -3,106 +3,147 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#351b20">
-  <meta name="description" content="A Catholic Bible companion with daily Maronite readings, Scripture and reflections.">
-  <title>Verbum Dei | Catholic Bible Companion</title>
+  <meta name="theme-color" content="#f5f4ef">
+  <meta name="description" content="Verbum — a thoughtful daily companion for Scripture, Maronite readings, saints, prayer and reflection.">
+  <title>Verbum — A daily companion for the Word</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="page-shell">
     <header class="site-header">
-      <a class="brand" href="/" aria-label="Verbum Dei home">
-        <span class="brand-cross">✝</span>
-        <span><strong>VERBUM DEI</strong><small>THE WORD OF GOD</small></span>
+      <a class="brand" href="/" aria-label="Verbum home">
+        <span class="brand-mark">v.</span>
+        <span class="brand-name"><strong>verbum</strong><small>THE WORD, EVERY DAY</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Main navigation">
         <button class="nav-link active" data-view="home" data-i18n="navHome">Home</button>
-        <button class="nav-link" data-view="readings" data-i18n="navReadings">Daily readings</button>
-        <button class="nav-link" data-view="verse" data-i18n="navVerse">Random verse</button>
+        <button class="nav-link" data-view="readings" data-i18n="navReadings">Readings</button>
+        <button class="nav-link" data-view="verse" data-i18n="navVerse">Verse</button>
         <button class="nav-link" data-view="reflection" data-i18n="navReflection">Reflection</button>
+        <button class="nav-link" data-view="explore" data-i18n="navExplore">Explore</button>
       </nav>
       <div class="header-actions">
-        <button class="icon-button" id="languageButton" type="button" aria-label="Change language">EN / ع</button>
-        <button class="icon-button" id="settingsButton" type="button" aria-label="Settings">⚙</button>
+        <button class="icon-button language-toggle" id="languageButton" type="button" aria-label="Change language">EN / ع</button>
+        <button class="icon-button settings-trigger" id="settingsButton" type="button" aria-label="Settings">☰</button>
       </div>
     </header>
 
     <main>
       <section class="hero">
-        <div class="hero-ornament" aria-hidden="true">✦</div>
-        <p class="eyebrow" data-i18n="heroEyebrow">A CATHOLIC SCRIPTURE COMPANION</p>
-        <h1 data-i18n="heroTitle">Rooted in the Word.<br><em>Guided by faith.</em></h1>
-        <p class="hero-subtitle" data-i18n="heroSubtitle">Read the Scriptures, reflect with the Church, and carry the Word into your day.</p>
-        <p class="arabic-hero" lang="ar" dir="rtl">ثابتون في الكلمة، مستنيرون بالإيمان</p>
-        <div class="hero-rule"><span>✝</span></div>
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="heroEyebrow">A QUIETER SPACE FOR WHAT MATTERS</p>
+          <h1 data-i18n="heroTitle">Make room for<br><em>the Word.</em></h1>
+          <p class="hero-subtitle" data-i18n="heroSubtitle">Scripture, daily Maronite readings and thoughtful reflections — gathered in one calm place.</p>
+          <div class="hero-actions">
+            <button class="primary-button" data-action="daily" data-i18n="heroCta">Read today's passages <span>↗</span></button>
+            <span class="hero-note" data-i18n="heroNote">A moment of stillness, every day.</span>
+          </div>
+          <div class="hero-meta"><span class="meta-dot"></span><span data-i18n="heroMeta">ROOTED IN SCRIPTURE · OPEN TO EVERYONE</span></div>
+        </div>
+        <div class="hero-art">
+          <div class="hero-image-wrap">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Christ_Pantocrator_icon.jpg" alt="Traditional icon of Jesus Christ Pantocrator" fetchpriority="high">
+          </div>
+          <div class="art-caption"><span>01 / THE WORD</span><span>CHRIST, OUR CENTER</span></div>
+          <div class="art-index">✳</div>
+        </div>
       </section>
 
       <section class="welcome-row">
         <div>
-          <p class="section-kicker" data-i18n="welcomeKicker">YOUR DAILY TIME WITH GOD</p>
-          <h2 data-i18n="welcomeTitle">A moment in the Word</h2>
+          <p class="section-kicker" data-i18n="welcomeKicker">YOUR DAILY PAUSE</p>
+          <h2 data-i18n="welcomeTitle">A little time, well spent.</h2>
         </div>
         <div class="date-chip" id="todayDate">Today</div>
       </section>
 
-      <section class="feature-grid">
+      <section class="feature-grid" aria-label="Daily features">
         <article class="feature-card daily-card">
-          <div class="card-topline"><span class="card-icon">☼</span><span class="tag" data-i18n="dailyTag">LITURGY</span></div>
+          <div class="card-topline"><span class="card-number">01</span><span class="tag" data-i18n="dailyTag">THE LITURGY</span></div>
           <h3 data-i18n="dailyTitle">Today's readings</h3>
-          <p data-i18n="dailyDescription">The Gospel, Epistle and liturgical color from the Maronite calendar.</p>
-          <button class="text-button" data-action="daily" data-i18n="openReadings">Open today's readings <span>→</span></button>
+          <p data-i18n="dailyDescription">The Epistle, Gospel and liturgical color from the Maronite calendar.</p>
+          <button class="text-button" data-action="daily" data-i18n="openReadings">Open readings <span>↗</span></button>
         </article>
         <article class="feature-card verse-card">
-          <div class="card-topline"><span class="card-icon">✧</span><span class="tag" data-i18n="verseTag">SCRIPTURE</span></div>
-          <h3 data-i18n="verseTitle">A verse for you</h3>
-          <p data-i18n="verseDescription">Discover a passage from the Bible in English and Arabic.</p>
-          <button class="text-button" data-action="verse" data-i18n="findVerse">Find a verse <span>→</span></button>
+          <div class="card-topline"><span class="card-number">02</span><span class="tag" data-i18n="verseTag">SCRIPTURE</span></div>
+          <h3 data-i18n="verseTitle">A verse to keep</h3>
+          <p data-i18n="verseDescription">A passage from the Bible, in English and Arabic.</p>
+          <button class="text-button" data-action="verse" data-i18n="findVerse">Find a verse <span>↗</span></button>
         </article>
         <article class="feature-card reflection-card">
-          <div class="card-topline"><span class="card-icon">♡</span><span class="tag" data-i18n="reflectionTag">PRAYER & REFLECTION</span></div>
+          <div class="card-topline"><span class="card-number">03</span><span class="tag" data-i18n="reflectionTag">A MOMENT TO REFLECT</span></div>
           <h3 data-i18n="reflectionTitle">Daily reflection</h3>
-          <p data-i18n="reflectionDescription">A short faith-inspired thought to carry through your day.</p>
-          <button class="text-button" data-action="reflection" data-i18n="readReflection">Read reflection <span>→</span></button>
+          <p data-i18n="reflectionDescription">A simple thought to carry with you into the day.</p>
+          <button class="text-button" data-action="reflection" data-i18n="readReflection">Read reflection <span>↗</span></button>
         </article>
       </section>
 
       <section class="content-panel" id="contentPanel" aria-live="polite">
         <div class="panel-heading">
           <div><p class="section-kicker" data-i18n="yourReading">YOUR READING SPACE</p><h2 id="panelTitle" data-i18n="welcomePanelTitle">Begin with Scripture</h2></div>
-          <span class="panel-cross">✝</span>
+          <span class="panel-index">VERBUM / 01</span>
         </div>
         <div id="output" class="output-content">
-          <p class="empty-state" data-i18n="emptyPrompt">Choose a section above to begin your time in the Word.</p>
+          <p class="empty-state" data-i18n="emptyPrompt">Choose a reading above and take a moment with it.</p>
         </div>
       </section>
 
+      <section class="explore-section" id="exploreSection">
+        <div class="section-heading">
+          <div><p class="section-kicker" data-i18n="exploreKicker">PEOPLE & STORIES</p><h2 data-i18n="exploreTitle">Faith is lived.</h2></div>
+          <p data-i18n="exploreIntro">Meet the people and stories that help us understand a life shaped by Christ.</p>
+        </div>
+        <div class="people-grid">
+          <article class="person-card person-jesus">
+            <button class="person-image" data-action="jesus" aria-label="Explore Jesus">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Christ_Pantocrator_icon.jpg" alt="Christ Pantocrator icon" loading="lazy">
+              <span class="image-arrow">↗</span>
+            </button>
+            <div class="person-info"><span class="tag">THE CENTER</span><h3>Jesus Christ</h3><p data-i18n="jesusCard">The life, words and message at the heart of the Gospel.</p><button class="text-button" data-action="jesus" data-i18n="discover">Discover <span>↗</span></button></div>
+          </article>
+          <article class="person-card">
+            <button class="person-image" data-action="saints" aria-label="Explore saints">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Saint_Maron.jpg" alt="Traditional image of Saint Maron" loading="lazy">
+              <span class="image-arrow">↗</span>
+            </button>
+            <div class="person-info"><span class="tag">WITNESSES</span><h3 data-i18n="saintsTitle">Saints</h3><p data-i18n="saintsCard">Stories of courage, service and a life devoted to God.</p><button class="text-button" data-action="saints" data-i18n="discover">Discover <span>↗</span></button></div>
+          </article>
+          <article class="person-card">
+            <button class="person-image" data-action="priests" aria-label="Explore priests">
+              <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Catholic_Priest_praying.jpg" alt="A Catholic priest in prayer" loading="lazy">
+              <span class="image-arrow">↗</span>
+            </button>
+            <div class="person-info"><span class="tag">VOCATION</span><h3 data-i18n="priestsTitle">Priests</h3><p data-i18n="priestsCard">Learn about the vocation of serving and accompanying a community.</p><button class="text-button" data-action="priests" data-i18n="discover">Discover <span>↗</span></button></div>
+          </article>
+        </div>
+        <p class="image-credit">Artwork and photography: <a href="https://commons.wikimedia.org/wiki/File:Christ_Pantocrator_icon.jpg" target="_blank" rel="noopener">Christ</a> · <a href="https://commons.wikimedia.org/wiki/File:Saint_Maron.jpg" target="_blank" rel="noopener">Saint Maron</a> · <a href="https://commons.wikimedia.org/wiki/File:Catholic_Priest_praying.jpg" target="_blank" rel="noopener">Priest in prayer</a> — Wikimedia Commons</p>
+      </section>
+
       <section class="quote-strip">
-        <span>“</span>
+        <span class="quote-mark">“</span>
         <p data-i18n="quote">Your word is a lamp to my feet and a light to my path.</p>
         <small>PSALM 119:105</small>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="footer-cross">✝</div>
-      <p>VERBUM DEI</p>
-      <small data-i18n="footer">Made to help you read, reflect and grow in faith.</small>
-      <small class="disclaimer" data-i18n="disclaimer">Scripture text is provided by Bible SuperSearch. Daily liturgical information is sourced from OLM.</small>
+      <div class="footer-brand">verbum<span>.</span></div>
+      <div class="footer-bottom"><small data-i18n="footer">A quiet place to read, reflect and grow.</small><small class="disclaimer" data-i18n="disclaimer">Daily liturgical information is sourced from OLM. Scripture text is provided by Bible SuperSearch.</small><span>© <span id="year"></span> VERBUM</span></div>
     </footer>
   </div>
 
   <dialog id="settingsDialog" class="settings-dialog">
     <form method="dialog" class="settings-form">
-      <div class="dialog-heading"><div><p class="section-kicker" data-i18n="settingsKicker">PERSONALIZE YOUR EXPERIENCE</p><h2 data-i18n="settingsTitle">Settings</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
-      <label for="displayLanguage" data-i18n="languageLabel">Display language</label>
+      <div class="dialog-heading"><div><p class="section-kicker" data-i18n="settingsKicker">MAKE IT YOURS</p><h2 data-i18n="settingsTitle">Settings</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+      <label for="displayLanguage" data-i18n="languageLabel">Language</label>
       <select id="displayLanguage"><option value="both">English + العربية</option><option value="en">English</option><option value="ar">العربية</option></select>
       <label for="fontSize" data-i18n="fontLabel">Reading text size</label>
       <select id="fontSize"><option value="small">Small</option><option value="normal">Normal</option><option value="large">Large</option><option value="xlarge">Extra large</option></select>
-      <label for="colorTheme" data-i18n="themeLabel">Color theme</label>
-      <select id="colorTheme"><option value="parchment">Parchment & Burgundy</option><option value="night">Night Chapel</option></select>
+      <label for="colorTheme" data-i18n="themeLabel">Appearance</label>
+      <select id="colorTheme"><option value="light">Daylight</option><option value="night">Night</option></select>
       <button class="primary-button" id="saveSettings" value="save" data-i18n="saveSettings">Save settings</button>
     </form>
   </dialog>
