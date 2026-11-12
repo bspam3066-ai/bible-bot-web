@@ -84,7 +84,15 @@
     const t = settings.language === "ar" ? translations.ar : translations.en;
     document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.dataset.i18n;
-      if (t[key]) el.innerHTML = t[key];
+      if (!translations.en[key] || !translations.ar[key]) return;
+      el.innerHTML = settings.language === "both"
+        ? `<span class="bilingual-label bilingual-en">${translations.en[key]}</span><span class="bilingual-label bilingual-ar arabic" lang="ar" dir="rtl">${translations.ar[key]}</span>`
+        : t[key];
+    });
+    document.querySelectorAll("[data-bilingual-en][data-bilingual-ar]").forEach(el => {
+      const en = el.dataset.bilingualEn, ar = el.dataset.bilingualAr;
+      el.innerHTML = settings.language === "ar" ? `<span class="arabic" lang="ar" dir="rtl">${ar}</span>`
+        : settings.language === "both" ? `<span class="bilingual-label">${en}</span><span class="bilingual-label bilingual-ar arabic" lang="ar" dir="rtl">${ar}</span>` : en;
     });
     $("#displayLanguage").value = settings.language;
     $("#fontSize").value = settings.fontSize;
