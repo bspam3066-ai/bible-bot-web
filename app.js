@@ -115,6 +115,11 @@
     if (lang === "ar") return `<div class="${extraClass} arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</div>`;
     return `<div class="two-language"><div class="language-column"><div class="reference">ENGLISH</div><div class="${extraClass}">${escapeHtml(en)}</div></div><div class="language-column" dir="rtl"><div class="reference">العربية</div><div class="${extraClass} arabic" lang="ar">${escapeHtml(ar)}</div></div></div>`;
   }
+  function interfaceLabel(en, ar) {
+    if (settings.language === "ar") return `<span class="arabic" lang="ar" dir="rtl">${ar}</span>`;
+    if (settings.language === "en") return en;
+    return `${en} · <span class="arabic" lang="ar" dir="rtl">${ar}</span>`;
+  }
   function chooseDifferent(list, previous) {
     if (list.length < 2) return 0;
     let index = Math.floor(Math.random() * list.length);
@@ -203,9 +208,9 @@
       }
       if (!blocks.length) throw new Error("The OLM page did not return the daily reading references.");
       const color = data.liturgicalColor || "Not detected";
-      setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${explanationHtml}${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "Liturgical color"}: ${escapeHtml(color)}</p><p class="meaning">Source: <a href="https://www.olm.org.lb/ar/liturgical-calendar" target="_blank" rel="noopener">OLM Maronite Liturgical Calendar</a></p>`);
+      setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${explanationHtml}${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "${interfaceLabel("Liturgical color","اللون الليتورجي")}"}: ${escapeHtml(color)}</p><p class="meaning">${interfaceLabel("Source: <a href=\"https://www.olm.org.lb/ar/liturgical-calendar\" target=\"_blank\" rel=\"noopener\">OLM Maronite Liturgical Calendar</a>","المصدر: <a href=\"https://www.olm.org.lb/ar/liturgical-calendar\" target=\"_blank\" rel=\"noopener\">الروزنامة الليتورجية المارونية OLM</a>")}</p>`);
     } catch (error) {
-      setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">The latest readings could not be loaded. Please try again later.</p>`);
+      setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">${interfaceLabel("The latest readings could not be loaded. Please try again later.","تعذّر تحميل أحدث القراءات. يُرجى المحاولة مجددًا لاحقًا.")}</p>`);
     }
   }
 
@@ -218,7 +223,7 @@
       : settings.language === "ar"
         ? `<p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p>`
         : `<div class="two-language"><p class="scripture">${escapeHtml(item.en)}</p><p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p></div>`;
-    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">🙏 Take a quiet moment to reflect and pray.</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${settings.language === "ar" ? "رسالة جديدة من الله" : "Another message from God"} ↻</button></div>`);
+    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">${interfaceLabel("🙏 Take a quiet moment to reflect and pray.","🙏 خذ لحظة هادئة للتأمّل والصلاة.")}</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${settings.language === "ar" ? "رسالة جديدة من الله" : "${interfaceLabel("Another message from God","رسالة أخرى من الله")}"} ↻</button></div>`);
   }
 
 
@@ -331,7 +336,7 @@
           <p class="meaning">AI-assisted devotional explanation based on today's Gospel. It is not an official Church document. If a question is disputed or unclear, ask a priest or trusted catechist. · <span class="arabic" lang="ar" dir="rtl">تأمّل روحي بمساعدة الذكاء الاصطناعي، يستند إلى إنجيل اليوم، وليس وثيقة كنسيّة رسميّة. عند وجود سؤال خلافي أو غير واضح، استشر كاهنًا أو معلّمًا موثوقًا في الإيمان.</span></p>`
         : `<div class="feature-hero"><h3>Today's explanation is being prepared.</h3><p class="arabic" lang="ar" dir="rtl">يجري إعداد شرح إنجيل اليوم.</p><p>The Gospel text is available above. The explanation will appear after the daily preparation succeeds.</p></div>`;
 
-      setPanel("Gospel of the Day · إنجيل اليوم",`<p class="meaning">${escapeHtml(data.liturgicalDay||"Today's liturgy")} · ${escapeHtml(data.date||"")}</p><article class="reading-block">${body}</article>${explanationHtml}<div class="feature-hero"><h3>Pause and reflect</h3><p class="arabic" dir="rtl">توقّف وتأمّل</p><ol class="reflection-questions"><li>What word or moment in this Gospel stays with you?</li><li>What might Jesus be inviting you to do today?</li><li>Who could you treat with greater kindness because of this Gospel?</li></ol><ol class="reflection-questions arabic" dir="rtl"><li>ما الكلمة أو اللحظة التي بقيت في قلبك من هذا الإنجيل؟</li><li>إلى ماذا يدعوك يسوع اليوم؟</li><li>كيف يمكنك أن تعامل أحدًا بمحبّة أكبر؟</li></ol></div><button class="text-button" data-action="daily">Read the Epistle too ↗</button><p class="meaning">Daily reading source: OLM Maronite Liturgical Calendar. · مصدر القراءات: الروزنامة الليتورجية المارونية OLM.</p>`);
+      setPanel("Gospel of the Day · إنجيل اليوم",`<p class="meaning">${escapeHtml(data.liturgicalDay||"Today's liturgy")} · ${escapeHtml(data.date||"")}</p><article class="reading-block">${body}</article>${explanationHtml}<div class="feature-hero"><h3>${interfaceLabel("Pause and reflect","توقّف وتأمّل")}</h3><p class="arabic" dir="rtl">توقّف وتأمّل</p><ol class="reflection-questions"><li>What word or moment in this Gospel stays with you?</li><li>What might Jesus be inviting you to do today?</li><li>Who could you treat with greater kindness because of this Gospel?</li></ol><ol class="reflection-questions arabic" dir="rtl"><li>ما الكلمة أو اللحظة التي بقيت في قلبك من هذا الإنجيل؟</li><li>إلى ماذا يدعوك يسوع اليوم؟</li><li>كيف يمكنك أن تعامل أحدًا بمحبّة أكبر؟</li></ol></div><button class="text-button" data-action="daily">${interfaceLabel("Read the Epistle too ↗","اقرأ الرسالة أيضًا ←")}</button><p class="meaning">Daily reading source: OLM Maronite Liturgical Calendar. · مصدر القراءات: الروزنامة الليتورجية المارونية OLM.</p>`);
     }catch(error){setPanel("Gospel unavailable · تعذّر تحميل الإنجيل",`<p class="error-message">${escapeHtml(error.message)}</p><button class="text-button" data-action="daily">Try daily readings ↗</button>`);}
   }
 
