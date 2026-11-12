@@ -46,7 +46,7 @@
       footer:"Made to help you read, reflect and grow in faith.",
       disclaimer:"Scripture text is provided by Bible SuperSearch. Daily liturgical information is sourced from OLM.",
       settingsKicker:"PERSONALIZE YOUR EXPERIENCE", settingsTitle:"Settings", languageLabel:"Display language",
-      fontLabel:"Reading text size", themeLabel:"Color theme", saveSettings:"Save settings"
+      fontLabel:"Website text size", themeLabel:"Color theme", saveSettings:"Save settings"
     },
     ar: {
       quickVerse:"آية جديدة من الكتاب المقدّس", quickMessage:"رسالة من الله", navHome:"الرئيسية", navReadings:"قراءات اليوم", navVerse:"آية عشوائية", navReflection:"تأمّل", navSaints:"القديسون", navPriest:"الحياة الكنسية", navPrayers:"الصلوات", prayersTitle:"مكتبة الصلوات", prayersDescription:"صلوات كنسيّة وتأمّلات يومية بالعربية والإنجليزية.", openPrayers:"افتح مكتبة الصلوات ←", heroEyebrow:"مساحة هادئة لما هو أساسي", heroButton:"اقرأ كلمة اليوم", saintsButton:"تعرّف إلى القديسين",
@@ -64,7 +64,7 @@
       footer:"صُمّم ليساعدك على القراءة والتأمّل والنمو في الإيمان.",
       disclaimer:"نصوص الكتاب المقدّس من Bible SuperSearch. معلومات الروزنامة الليتورجية من OLM.",
       settingsKicker:"خصّص تجربتك", settingsTitle:"الإعدادات", languageLabel:"لغة العرض",
-      fontLabel:"حجم خط القراءة", themeLabel:"ألوان الموقع", saveSettings:"حفظ الإعدادات"
+      fontLabel:"حجم خط الموقع", themeLabel:"ألوان الموقع", saveSettings:"حفظ الإعدادات"
     }
   };
 
@@ -78,6 +78,7 @@
     document.body.classList.toggle("lang-ar", settings.language === "ar");
     const sizes = { small: ".88", normal: "1", large: "1.2", xlarge: "1.4" };
     document.documentElement.style.setProperty("--reading-scale", sizes[settings.fontSize] || "1");
+    document.documentElement.style.setProperty("--site-scale", sizes[settings.fontSize] || "1");
     document.documentElement.lang = settings.language === "ar" ? "ar" : "en";
     document.documentElement.dir = "ltr";
     const t = settings.language === "ar" ? translations.ar : translations.en;
