@@ -60,3 +60,27 @@
 .saint-image-credit[hidden],.saint-card-image[hidden],.saint-image-placeholder[hidden]{display:none;}
 @media(max-width:700px){.saints-grid{grid-template-columns:1fr;}.saint-card{min-height:130px;}.saint-portrait-wrap{flex-basis:92px;width:92px;height:112px;}.saint-detail-heading .saint-portrait-wrap{flex-basis:112px;width:112px;height:136px;}}
 @media(max-width:420px){.saint-card-copy h3{font-size:16px;}.saint-card{gap:11px;padding:10px;}}
+
+
+/* Reading-size settings: scale the actual text, including elements with fixed sizes. */
+.output-content h3{font-size:calc(25px * var(--reading-scale))}
+.output-content .reference{font-size:calc(10px * var(--reading-scale))}
+.output-content .scripture{font-size:calc(22px * var(--reading-scale))}
+.output-content .scripture.arabic{font-size:calc(25px * var(--reading-scale))}
+.output-content .meaning{font-size:calc(12px * var(--reading-scale))}
+.output-content .feature-copy{font-size:calc(13px * var(--reading-scale))}
+.output-content .feature-copy.arabic{font-size:calc(21px * var(--reading-scale))}
+.output-content .prayer-entry .prayer-text{font-size:calc(16px * var(--reading-scale))}
+.output-content .prayer-entry .prayer-text.arabic{font-size:calc(23px * var(--reading-scale))}
+.output-content .saint-detail h3{font-size:calc(28px * var(--reading-scale))}
+.output-content .saint-detail p{font-size:calc(15px * var(--reading-scale))}
+.output-content .feature-hero h3{font-size:calc(32px * var(--reading-scale))}
+.output-content .feature-hero p{font-size:calc(13px * var(--reading-scale))}
+.output-content .feature-hero .arabic{font-size:calc(23px * var(--reading-scale))}
+.output-content .rosary-current h3{font-size:calc(23px * var(--reading-scale))}
+.output-content .rosary-current .arabic{font-size:calc(25px * var(--reading-scale))}
+.output-content .quiz-card h3{font-size:calc(24px * var(--reading-scale))}
+.output-content .quiz-option{font-size:calc(14px * var(--reading-scale))}
+.output-content .quiz-feedback{font-size:calc(12px * var(--reading-scale))}
+.output-content .heritage-grid p{font-size:calc(12px * var(--reading-scale))}
+.output-content .intention-item p{font-size:calc(15px * var(--reading-scale))}
