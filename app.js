@@ -160,7 +160,7 @@
         : settings.language === "ar"
           ? `<p class="meaning arabic" dir="rtl">${escapeHtml(meaning.ar)}</p>`
           : `<div class="two-language"><p class="meaning">${escapeHtml(meaning.en)}</p><p class="meaning arabic" dir="rtl">${escapeHtml(meaning.ar)}</p></div>`;
-      setPanel(reference, `<article class="reading-block"><div class="reference">${escapeHtml(reference)}</div>${scripture}</article><h3>Meaning & reflection / المعنى والتأمّل</h3>${meaningHtml}<div class="inline-refresh-wrap"><button class="primary-button" data-action="verse">${settings.language === "ar" ? "آية جديدة" : "Another Bible verse"} ↻</button></div>`);
+      setPanel(reference, `<article class="reading-block"><div class="reference">${escapeHtml(reference)}</div>${scripture}</article><h3>Meaning & reflection / المعنى والتأمّل</h3>${meaningHtml}<div class="inline-refresh-wrap"><button class="primary-button" data-action="verse">${interfaceLabel("Another Bible verse","آية جديدة من الكتاب المقدّس")} ↻</button></div>`);
     } catch (error) {
       setPanel("Bible verse", `<p class="error-message">Could not load the complete verse. ${escapeHtml(error.message)}</p><p>${escapeHtml(reference)}</p><button class="primary-button" data-action="verse">Try another verse</button>`);
     }
@@ -244,18 +244,18 @@
     const items = library.items.filter(item => category === "all" || item.category === category);
     const cards = items.map(item => {
       const body = languageBlocks(item.en, item.ar, "prayer-text");
-      const note = isArabic ? item.noteAr : item.noteEn;
-      return `<article class="prayer-entry"><div class="prayer-entry-heading"><span class="prayer-cross">✝</span><div><h3>${isArabic ? escapeHtml(item.arTitle) : escapeHtml(item.enTitle)}</h3><small>${escapeHtml(note)}</small></div></div>${body}</article>`;
+      const note = settings.language === "both" ? item.noteEn + " · " + item.noteAr : isArabic ? item.noteAr : item.noteEn;
+      return `<article class="prayer-entry"><div class="prayer-entry-heading"><span class="prayer-cross">✝</span><div><h3>${interfaceLabel(escapeHtml(item.enTitle),escapeHtml(item.arTitle))}</h3><small>${escapeHtml(note)}</small></div></div>${body}</article>`;
     }).join("");
     const intro = interfaceLabel("A collection of traditional Catholic prayers and original daily devotions. Choose a prayer and take a quiet moment.","مجموعة من الصلوات الكاثوليكية المتوارثة والتأمّلات اليومية. اختر صلاة وخذ لحظة هادئة.");
     setPanel(title, `
       <div class="prayer-library-hero">
         <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Lord%27s_Prayer_and_a_crucifix.jpg" alt="A crucifix resting on an open Bible showing the Lord's Prayer" loading="lazy">
-        <div class="prayer-library-overlay"><span>VERBUM DEI · ORA ET LABORA</span><h3>${isArabic ? "ارفع قلبك إلى الله" : "Lift your heart to God"}</h3><p>${intro}</p></div>
+        <div class="prayer-library-overlay"><span>VERBUM DEI · ORA ET LABORA</span><h3>${interfaceLabel("Lift your heart to God","ارفع قلبك إلى الله")}</h3><p>${intro}</p></div>
       </div>
       <div class="prayer-filters">${categories}</div>
       <div class="prayer-list">${cards}</div>
-      <p class="prayer-credit">Image: James Chan (jclk8888) · CC0 Public Domain · <a href="https://commons.wikimedia.org/wiki/File:Lord%27s_Prayer_and_a_crucifix.jpg" target="_blank" rel="noopener">Image details</a></p>
+      <p class="prayer-credit">${interfaceLabel('Image: James Chan (jclk8888) · CC0 Public Domain · <a href="https://commons.wikimedia.org/wiki/File:Lord%27s_Prayer_and_a_crucifix.jpg" target="_blank" rel="noopener">Image details</a>','الصورة: جيمس تشان · الملكية العامة · <a href="https://commons.wikimedia.org/wiki/File:Lord%27s_Prayer_and_a_crucifix.jpg" target="_blank" rel="noopener">تفاصيل الصورة</a>')}</p>
       <p class="meaning">${interfaceLabel("Note: The traditional prayers are established Catholic prayers. The daily devotions and saint-intercession texts are original devotional wording for this site, not official liturgical texts.","ملاحظة: الصلوات الأساسية هي صلوات كاثوليكية متوارثة. أمّا الصلوات التأمّلية وطلبات الشفاعة فهي صيغ تعبّدية أُعدّت للموقع وليست نصوصًا طقسية رسمية.")}</p>
     `);
   }
@@ -338,7 +338,7 @@
         : `<div class="feature-hero"><h3>Today's explanation is being prepared.</h3><p class="arabic" lang="ar" dir="rtl">يجري إعداد شرح إنجيل اليوم.</p><p>The Gospel text is available above. The explanation will appear after the daily preparation succeeds.</p></div>`;
 
       setPanel("Gospel of the Day · إنجيل اليوم",`<p class="meaning">${escapeHtml(data.liturgicalDay||"Today's liturgy")} · ${escapeHtml(data.date||"")}</p><article class="reading-block">${body}</article>${explanationHtml}<div class="feature-hero"><h3>${interfaceLabel("Pause and reflect","توقّف وتأمّل")}</h3><p class="arabic" dir="rtl">توقّف وتأمّل</p><ol class="reflection-questions"><li>What word or moment in this Gospel stays with you?</li><li>What might Jesus be inviting you to do today?</li><li>Who could you treat with greater kindness because of this Gospel?</li></ol><ol class="reflection-questions arabic" dir="rtl"><li>ما الكلمة أو اللحظة التي بقيت في قلبك من هذا الإنجيل؟</li><li>إلى ماذا يدعوك يسوع اليوم؟</li><li>كيف يمكنك أن تعامل أحدًا بمحبّة أكبر؟</li></ol></div><button class="text-button" data-action="daily">${interfaceLabel("Read the Epistle too ↗","اقرأ الرسالة أيضًا ←")}</button><p class="meaning">Daily reading source: OLM Maronite Liturgical Calendar. · مصدر القراءات: الروزنامة الليتورجية المارونية OLM.</p>`);
-    }catch(error){setPanel("Gospel unavailable · تعذّر تحميل الإنجيل",`<p class="error-message">${escapeHtml(error.message)}</p><button class="text-button" data-action="daily">Try daily readings ↗</button>`);}
+    }catch(error){setPanel("Gospel unavailable · تعذّر تحميل الإنجيل",`<p class="error-message">${escapeHtml(error.message)}</p><button class="text-button" data-action="daily">${interfaceLabel("Try daily readings ↗","جرّب قراءات اليوم ←")}</button>`);}
   }
 
   function showRosary() {
@@ -346,9 +346,9 @@
     const index=Math.min(rosaryState.phase,steps.length-1), step=steps[index], words=rosaryPrayerWords(step);
     const progress=Math.round((index/(steps.length-1))*100);
     setPanel("Pray the Rosary · صلِّ المسبحة",`
-      <div class="feature-hero"><span class="feature-kicker">VERBUM DEI · PRAYER GUIDE</span><h3>${interfaceLabel("Walk through the Rosary","صلِّ المسبحة خطوةً خطوة")}</h3><p>${interfaceLabel("Take your time. You can pause or restart whenever you wish.","خذ وقتك، ويمكنك التوقّف أو البدء من جديد متى شئت.")}</p></div>
+      <div class="feature-hero"><span class="feature-kicker">VERBUM DEI · PRAYER GUIDE · دليل الصلاة</span><h3>${interfaceLabel("Walk through the Rosary","صلِّ المسبحة خطوةً خطوة")}</h3><p>${interfaceLabel("Take your time. You can pause or restart whenever you wish.","خذ وقتك، ويمكنك التوقّف أو البدء من جديد متى شئت.")}</p></div>
       <div class="feature-toolbar"><label for="rosaryMystery">Choose the mysteries / اختر الأسرار</label><select id="rosaryMystery">${Object.entries(rosaryMysteries).map(([id,x])=>`<option value="${id}" ${id===rosaryState.mystery?"selected":""}>${x.en} · ${x.ar}</option>`).join("")}</select></div>
-      <p class="meaning">${m.days} · ${m.en} / ${m.ar}</p>
+      <p class="meaning">${interfaceLabel(m.days,({"Monday · Saturday":"الإثنين · السبت","Thursday":"الخميس","Tuesday · Friday":"الثلاثاء · الجمعة","Wednesday · Sunday":"الأربعاء · الأحد"})[m.days]||m.days)} · ${m.en} / ${m.ar}</p>
       <div class="progress-track"><span style="width:${progress}%"></span></div><p class="reference">${interfaceLabel("PRAYER "+(index+1)+" OF "+steps.length,"الصلاة "+(index+1)+" من "+steps.length)}</p>
       <article class="prayer-entry rosary-current"><h3>${escapeHtml(step.en)}</h3><p class="meaning">${escapeHtml(step.ar)}</p><div class="two-language"><p class="prayer-text">${escapeHtml(words.en)}</p><p class="prayer-text arabic" lang="ar" dir="rtl">${escapeHtml(words.ar)}</p></div><p class="meaning">${interfaceLabel("Mystery "+Math.min(5,Math.max(1,Math.ceil(Math.max(0,index-7)/12)))+" of 5 · Take a quiet moment.","السرّ "+Math.min(5,Math.max(1,Math.ceil(Math.max(0,index-7)/12)))+" من 5 · خذ لحظة هادئة.")}</p></article>
       <div class="feature-actions"><button class="quiet-button" data-rosary-reset>${interfaceLabel("Restart","إعادة البدء")}</button><button class="primary-button" data-rosary-next>${index===steps.length-1?interfaceLabel("Finish","إنهاء"):interfaceLabel("Next prayer →","الصلاة التالية ←")}</button></div>
