@@ -208,7 +208,7 @@
       }
       if (!blocks.length) throw new Error("The OLM page did not return the daily reading references.");
       const color = data.liturgicalColor || "Not detected";
-      setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${explanationHtml}${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "${interfaceLabel("Liturgical color","اللون الليتورجي")}"}: ${escapeHtml(color)}</p><p class="meaning">${interfaceLabel("Source: <a href=\"https://www.olm.org.lb/ar/liturgical-calendar\" target=\"_blank\" rel=\"noopener\">OLM Maronite Liturgical Calendar</a>","المصدر: <a href=\"https://www.olm.org.lb/ar/liturgical-calendar\" target=\"_blank\" rel=\"noopener\">الروزنامة الليتورجية المارونية OLM</a>")}</p>`);
+      setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${explanationHtml}${blocks.join("")}<p class="meaning">✦ ${interfaceLabel("Liturgical color","اللون الليتورجيّ")}: ${escapeHtml(color)}</p><p class="meaning">${interfaceLabel("Source: <a href=\"https://www.olm.org.lb/ar/liturgical-calendar\" target=\"_blank\" rel=\"noopener\">OLM Maronite Liturgical Calendar</a>","المصدر: <a href=\"https://www.olm.org.lb/ar/liturgical-calendar\" target=\"_blank\" rel=\"noopener\">الروزنامة الليتورجية المارونية OLM</a>")}</p>`);
     } catch (error) {
       setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">${interfaceLabel("The latest readings could not be loaded. Please try again later.","تعذّر تحميل أحدث القراءات. يُرجى المحاولة مجددًا لاحقًا.")}</p>`);
     }
@@ -223,7 +223,7 @@
       : settings.language === "ar"
         ? `<p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p>`
         : `<div class="two-language"><p class="scripture">${escapeHtml(item.en)}</p><p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p></div>`;
-    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">${interfaceLabel("🙏 Take a quiet moment to reflect and pray.","🙏 خذ لحظة هادئة للتأمّل والصلاة.")}</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${settings.language === "ar" ? "رسالة جديدة من الله" : "${interfaceLabel("Another message from God","رسالة أخرى من الله")}"} ↻</button></div>`);
+    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">${interfaceLabel("🙏 Take a quiet moment to reflect and pray.","🙏 خذ لحظة هادئة للتأمّل والصلاة.")}</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${interfaceLabel("Another message from God","رسالة أخرى من الله")} ↻</button></div>`);
   }
 
 
