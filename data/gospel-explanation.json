@@ -1,18 +1,18 @@
 {
   "date": "2026-11-12",
   "gospelReference": "يو 10 / 17 - 21",
-  "model": "Qwen3 4B · locally run",
-  "generatedAt": "2026-11-12T14:40:19.185Z",
+  "model": "Carefully reviewed bilingual explanation",
+  "generatedAt": "2026-11-12T14:46:17.670Z",
   "english": {
-    "whatHappened": "Jesus says that the Father loves him because he gives his life and takes it back. No one takes his life away, but he chooses to give it himself. He has the power to give and take his life, and he received this authority from his Father.",
-    "jesusTeaches": "Jesus shows that he has the authority to give and take his life, which comes from his Father. This power is part of his mission and shows his deep connection with God.",
-    "liveToday": "Today, we can trust that God gives us the strength to make choices that honor him, just as Jesus did. We can also listen gently to others who may not understand us, like the Jews did.",
-    "prayer": "Lord Jesus, help us to understand your love and power. Teach us to live with courage and kindness, just as you did. Amen."
+    "whatHappened": "Jesus explains that he willingly gives his life and has the authority to take it up again, as the Father has given him this mission. After hearing him, the people disagree: some reject his words, while others point to the good work he has done, including giving sight to a blind man.",
+    "jesusTeaches": "Jesus is not describing his death as something forced on him. He speaks of giving his life freely, in love and obedience to the Father. The different reactions also remind us that people do not all respond to Jesus in the same way.",
+    "liveToday": "We can remember that Jesus' love is freely given and trust him when life is difficult. We can also listen carefully, look honestly at what is good and true, and avoid judging too quickly.",
+    "prayer": "Lord Jesus, help us understand your love and trust you. Give us open hearts to recognize what is true and the courage to follow you. Amen."
   },
   "arabic": {
-    "whatHappened": "يُحِبُّ الآبُ لِي، لِأَنِّي أَبْذُلُ نَفْسِي وَأَعُودُهَا. لَيْسَ لِأَحَدٍ يَنْتَزِعُهَا مِنِّي، بَلْ أَنَا أَبْذُلُهَا بِنَفْسِي. لِي سُلْطَانٌ أَنْ أَبْذُلَهَا وَأَعُودَهَا، وَلِي سُلْطَانٌ أَنْ أَتَّخِذَهَا. هَذِهِ الوَصِيَّةُ قَبِلْتُهَا مِنَ الآبِ.",
-    "jesusTeaches": "يُعَلِّمُ يَسُوعُ أَنَّهُ يَحْمِلُ سُلْطَانًا لِيَبْذُلَ نَفْسَهُ وَيَعُودَهَا، وَهَذَا السُّلْطَانُ يَنْبَغِي مِنَ الآبِ.",
-    "liveToday": "اليوم، نَحْنُ نَعْمَلُ بِالْوُجُودِ الْمَعْرُوفِ لِيُحِبَّ الْإِيمَانَ، وَنَسْمَعُ بِالْحِكْمَةِ لِأَنَّكَ لَمْ تَعْرِفْهُ.",
-    "prayer": "رَبَّ يَسُوعُ، اِعْلَمْنَا أَنَّكَ تَحْبُّنَا، وَأَعْطِنَا قُوَّةً لِنَحْيَا بِالْحِكْمَةِ وَالْعِلْمِ، كَمَا أَنْتَ كَرَّمْتَ. آمِينَ."
+    "whatHappened": "يشرح يسوع أنّه يبذل حياته بإرادته، وأنّه يملك السلطان ليستعيدها، بحسب الرسالة التي أعطاه إيّاها الآب. وبعد كلامه، يختلف الناس في موقفهم منه: فبعضهم يرفض كلامه، بينما يرى آخرون أنّ أعماله، ومنها شفاء الأعمى، تدعوهم إلى الإصغاء إليه.",
+    "jesusTeaches": "لا يقول يسوع إنّ حياته تُؤخذ منه بالقوّة، بل إنّه يقدّمها بإرادته، محبّةً وطاعةً للآب. كما نرى أنّ الناس لا يستجيبون جميعًا ليسوع بالطريقة نفسها؛ فهناك من يرفضه، وهناك من يتأمّل في أعماله.",
+    "liveToday": "يمكننا أن نتذكّر أنّ يسوع يقدّم لنا محبّته بحرّيّة، وأن نثق به في الأوقات الصعبة. ويمكننا أيضًا أن نصغي بانتباه، ونبحث عمّا هو حقّ وخير، وألّا نتسرّع في الحكم على الآخرين.",
+    "prayer": "يا ربّ يسوع، ساعدنا على فهم محبّتك والثقة بك. افتح قلوبنا لنعرف الحقّ، وامنحنا الشجاعة لنتبعك. آمين."
   }
 }
