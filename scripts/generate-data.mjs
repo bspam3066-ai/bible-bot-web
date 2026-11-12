@@ -53,29 +53,61 @@ OLM Gospel reference: ${readings.gospel.reference}
 English Gospel text: ${readings.gospel.english}
 Arabic Gospel text: ${readings.gospel.arabic}`;
 
-    const response = await fetch("http://127.0.0.1:11434/api/generate", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        model: "qwen3:4b",
-        prompt,
-        stream: false,
-        format: "json",
-        options: { temperature: 0.2, num_predict: 1800 }
-      })
-    });
-    if (!response.ok) throw new Error("Local model returned HTTP " + response.status);
-    const result = await response.json();
-    const generated = JSON.parse(result.response || "{}");
     const required = ["whatHappened", "jesusTeaches", "liveToday", "prayer"];
-    for (const language of ["english", "arabic"]) {
-      for (const field of required) {
-        if (typeof generated[language]?.[field] !== "string" || !generated[language][field].trim()) {
-          throw new Error("The model returned an incomplete " + language + " explanation.");
+    let generated = null;
+    let validationError = null;
+
+    // Small local models can occasionally omit a key on the first structured response.
+    // Retry once with a shorter, stricter instruction instead of silently publishing nothing.
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const retryPrompt = attempt === 1 ? prompt : `Return a COMPLETE JSON object only. Include every one of these exact keys at the top level: "english" and "arabic". Under EACH language include all four non-empty string fields: "whatHappened", "jesusTeaches", "liveToday", and "prayer". Do not omit or rename any field. Keep each value short (one or two sentences). Use only the Gospel text below; do not invent details or make disputed doctrinal claims. English must be in English and Arabic must be in clear Arabic.
+
+Gospel reference: ${readings.gospel.reference}
+English passage: ${readings.gospel.english}
+Arabic passage: ${readings.gospel.arabic}
+
+Required JSON shape:
+{"english":{"whatHappened":"...","jesusTeaches":"...","liveToday":"...","prayer":"..."},"arabic":{"whatHappened":"...","jesusTeaches":"...","liveToday":"...","prayer":"..."}}`;
+
+      const response = await fetch("http://127.0.0.1:11434/api/generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          model: "qwen3:4b",
+          prompt: retryPrompt,
+          stream: false,
+          format: "json",
+          think: false,
+          options: { temperature: 0.1, num_predict: 2400 }
+        })
+      });
+      if (!response.ok) throw new Error("Local model returned HTTP " + response.status);
+      const result = await response.json();
+      try {
+        const parsed = JSON.parse(result.response || "{}");
+        const getLanguage = name => parsed[name] || parsed[name.toUpperCase()] || parsed[name[0].toUpperCase() + name.slice(1)];
+        const candidate = { english: getLanguage("english"), arabic: getLanguage("arabic") };
+        const missing = [];
+        for (const language of ["english", "arabic"]) {
+          for (const field of required) {
+            if (typeof candidate[language]?.[field] !== "string" || !candidate[language][field].trim()) {
+              missing.push(language + "." + field);
+            }
+          }
         }
+        if (!missing.length) {
+          generated = candidate;
+          break;
+        }
+        validationError = "Missing or empty fields: " + missing.join(", ");
+        console.warn("Gospel explanation attempt " + attempt + " was incomplete: " + validationError);
+      } catch (error) {
+        validationError = "Invalid JSON response: " + error.message;
+        console.warn("Gospel explanation attempt " + attempt + " failed: " + validationError);
       }
     }
-
+    if (!generated) throw new Error("The model did not return a complete bilingual explanation after two attempts. " + (validationError || ""));
+    
     savedExplanation = {
       date: beirutDate,
       gospelReference: readings.gospel.reference,
