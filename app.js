@@ -76,7 +76,7 @@
   function applySettings() {
     document.body.classList.toggle("theme-day", settings.theme === "daylight");
     document.body.classList.toggle("lang-ar", settings.language === "ar");
-    const sizes = { small: ".88", normal: "1", large: "1.2", xlarge: "1.4" };
+    const sizes = { small: ".9", normal: "1", large: "1.15", xlarge: "1.3" };
     document.documentElement.style.setProperty("--reading-scale", sizes[settings.fontSize] || "1");
     document.documentElement.style.setProperty("--site-scale", sizes[settings.fontSize] || "1");
     document.documentElement.lang = settings.language === "ar" ? "ar" : "en";
