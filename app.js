@@ -115,6 +115,9 @@
     if (lang === "ar") return `<div class="${extraClass} arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</div>`;
     return `<div class="two-language"><div class="language-column"><div class="reference">ENGLISH</div><div class="${extraClass}">${escapeHtml(en)}</div></div><div class="language-column" dir="rtl"><div class="reference">العربية</div><div class="${extraClass} arabic" lang="ar">${escapeHtml(ar)}</div></div></div>`;
   }
+  function interfaceTitle(en, ar) {
+    return settings.language === "ar" ? ar : settings.language === "en" ? en : `${en} · ${ar}`;
+  }
   function interfaceLabel(en, ar) {
     if (settings.language === "ar") return `<span class="arabic" lang="ar" dir="rtl">${ar}</span>`;
     if (settings.language === "en") return en;
@@ -138,7 +141,7 @@
     let reference = refs[Math.floor(Math.random() * refs.length)];
     if (refs.length > 1) while (reference === lastVerse) reference = refs[Math.floor(Math.random() * refs.length)];
     lastVerse = reference;
-    setPanel(settings.language === "ar" ? "آية من الكتاب المقدّس" : "A verse from Scripture", `<p class="loading">✝ Loading Scripture… / جارٍ تحميل الآية…</p>`);
+    setPanel(interfaceTitle("A verse from Scripture","آية من الكتاب المقدّس"), `<p class="loading">✝ Loading Scripture… / جارٍ تحميل الآية…</p>`);
     try {
       const bundle = await fetchJson("./data/bible-verses.json");
       const data = bundle.verses?.[reference];
@@ -164,7 +167,7 @@
   }
 
   async function showDailyReadings() {
-    setPanel(settings.language === "ar" ? "قراءات اليوم" : "Today's Maronite readings", `<p class="loading">⏳ Fetching OLM readings… / جارٍ جلب القراءات الليتورجية…</p>`);
+    setPanel(interfaceTitle("Today's Maronite readings","قراءات اليوم"), `<p class="loading">⏳ Fetching OLM readings… / جارٍ جلب القراءات الليتورجية…</p>`);
     try {
       const beirutDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Beirut", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
       const data = await fetchJson(`./data/daily-readings.json?day=${beirutDate}`);
@@ -223,7 +226,7 @@
       : settings.language === "ar"
         ? `<p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p>`
         : `<div class="two-language"><p class="scripture">${escapeHtml(item.en)}</p><p class="scripture arabic" dir="rtl">${escapeHtml(item.ar)}</p></div>`;
-    setPanel(settings.language === "ar" ? "تأمّل اليوم" : "A reflection for today", `<article class="reading-block">${body}</article><p class="meaning">${interfaceLabel("🙏 Take a quiet moment to reflect and pray.","🙏 خذ لحظة هادئة للتأمّل والصلاة.")}</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${interfaceLabel("Another message from God","رسالة أخرى من الله")} ↻</button></div>`);
+    setPanel(interfaceTitle("A reflection for today","تأمّل اليوم"), `<article class="reading-block">${body}</article><p class="meaning">${interfaceLabel("🙏 Take a quiet moment to reflect and pray.","🙏 خذ لحظة هادئة للتأمّل والصلاة.")}</p><div class="inline-refresh-wrap"><button class="primary-button" data-action="reflection">${interfaceLabel("Another message from God","رسالة أخرى من الله")} ↻</button></div>`);
   }
 
 
@@ -234,7 +237,7 @@
       return;
     }
     const isArabic = settings.language === "ar";
-    const title = isArabic ? "مكتبة الصلوات" : "Prayer Library";
+    const title = interfaceTitle("Prayer Library","مكتبة الصلوات");
     const categories = library.categories.map(item =>
       `<button class="prayer-filter ${item.id === category ? "active" : ""}" data-prayer-category="${item.id}">${isArabic ? item.ar : item.en}</button>`
     ).join("");
@@ -545,7 +548,7 @@
     }
     const question=lang==="ar"?(qAr||"تعذّرت ترجمة هذا السؤال. يُرجى إعادة المحاولة بعد التأكّد من الاتصال بالإنترنت."):lang==="both"?`${escapeHtml(q.q)}${qAr?`<p class="arabic" lang="ar" dir="rtl">${escapeHtml(qAr)}</p>`:""}`:q.q;
     const answerLabel=(v,i)=>lang==="ar"?(answersAr[i]||"تعذّرت ترجمة هذا الخيار"):lang==="both"?`${escapeHtml(v)}${answersAr[i]?`<span class="arabic" lang="ar" dir="rtl">${escapeHtml(answersAr[i])}</span>`:""}`:escapeHtml(v);
-    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">${lang==="ar"?"السؤال":"QUESTION"} ${quizIndex+1} / ${quizRound.length} · ${lang==="ar"?"النتيجة":"SCORE"} ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3 ${lang==="ar"?'class="arabic" dir="rtl"':""}>${question}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${answerLabel(v,i)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?(lang==="en"?escapeHtml(q.why):escapeHtml(q.ar||"أحسنت! راجع الإجابة الصحيحة أعلاه.")): ""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?(lang==="ar"?"عرض النتيجة":"See result"):(lang==="ar"?"السؤال التالي ←":"Next question →")}</button></article>`);
+    setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<p class="reference">${lang==="ar"?"السؤال":"QUESTION"} ${quizIndex+1} / ${quizRound.length} · ${lang==="ar"?"النتيجة":"SCORE"} ${quizScore}</p><div class="progress-track"><span style="width:${quizIndex/quizRound.length*100}%"></span></div><article class="quiz-card"><h3 ${lang==="ar"?'class="arabic" dir="rtl"':""}>${question}</h3><div class="quiz-options">${q.a.map((v,i)=>`<button class="quiz-option" data-quiz-answer="${i}" ${quizAnswered?"disabled":""}>${answerLabel(v,i)}</button>`).join("")}</div><div id="quizFeedback" class="quiz-feedback">${quizAnswered?(lang==="en"?escapeHtml(q.why):lang==="ar"?escapeHtml(q.ar||"أحسنت! راجع الإجابة الصحيحة أعلاه."):`${escapeHtml(q.why)}<p class="arabic" lang="ar" dir="rtl">${escapeHtml(q.ar||"أحسنت! راجع الإجابة الصحيحة أعلاه.")}</p>`): ""}</div><button class="primary-button" data-quiz-next ${quizAnswered?"":"disabled"}>${quizIndex===quizRound.length-1?(lang==="ar"?"عرض النتيجة":"See result"):(lang==="ar"?"السؤال التالي ←":"Next question →")}</button></article>`);
     if(quizAnswered){const options=output.querySelectorAll("[data-quiz-answer]");options.forEach((b,i)=>{if(i===q.correct)b.classList.add("correct")});}
   }
   const featuredSaints=[
