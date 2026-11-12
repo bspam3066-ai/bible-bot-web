@@ -116,7 +116,47 @@ Required JSON shape:
       }
     }
     if (!generated) throw new Error("The model did not return a complete bilingual explanation after two attempts. " + (validationError || ""));
-    
+
+    // Translate the approved English draft in a separate pass. A focused translation
+    // task is easier for the small local model than writing both languages at once.
+    const translationPrompt = `Translate the following four short Gospel-explanation sections into clear, natural, simple Modern Standard Arabic for ordinary readers, including young readers in Lebanon.
+
+Rules:
+- Use familiar, correct Arabic and short sentences.
+- Preserve the meaning exactly; do not add ideas, theological claims, or details.
+- Do not copy the Bible passage or use awkward word-for-word phrasing.
+- Avoid unnecessary diacritics.
+- Return ONLY JSON with an "arabic" object containing all four exact keys: whatHappened, jesusTeaches, liveToday, prayer.
+
+English text to translate:
+${JSON.stringify(generated.english)}
+
+Required shape:
+{"arabic":{"whatHappened":"...","jesusTeaches":"...","liveToday":"...","prayer":"..."}}`;
+    const translationResponse = await fetch("http://127.0.0.1:11434/api/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        model: "qwen3:4b",
+        prompt: translationPrompt,
+        stream: false,
+        format: "json",
+        think: false,
+        options: { temperature: 0.05, num_predict: 1200 }
+      })
+    });
+    if (!translationResponse.ok) throw new Error("Arabic translation returned HTTP " + translationResponse.status);
+    const translationResult = await translationResponse.json();
+    const translated = JSON.parse(translationResult.response || "{}");
+    const arabicDraft = translated.arabic || translated.Arabic || {};
+    for (const field of required) {
+      const value = arabicDraft[field];
+      if (typeof value !== "string" || !value.trim() || !/[\\u0600-\\u06FF]/.test(value)) {
+        throw new Error("Arabic translation is missing or invalid for " + field);
+      }
+    }
+    generated.arabic = arabicDraft;
+
     savedExplanation = {
       date: beirutDate,
       gospelReference: readings.gospel.reference,
