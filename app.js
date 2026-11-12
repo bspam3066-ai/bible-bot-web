@@ -92,10 +92,25 @@
         ? `<span class="bilingual-label bilingual-en">${translations.en[key]}</span><span class="bilingual-label bilingual-ar arabic" lang="ar" dir="rtl">${translations.ar[key]}</span>`
         : t[key];
     });
+    // Re-read the selected language each time so every bilingual homepage label
+    // responds immediately and consistently, including older saved preferences.
+    const languageValue = String(settings.language || "both").trim().toLowerCase();
+    const languageMode = ({ arabic: "ar", "العربية": "ar", english: "en", bilingual: "both" })[languageValue]
+      || (["ar", "en", "both"].includes(languageValue) ? languageValue : "both");
+    settings.language = languageMode;
+    document.documentElement.lang = languageMode === "ar" ? "ar" : "en";
+    document.documentElement.dir = languageMode === "ar" ? "rtl" : "ltr";
+    document.body.classList.toggle("lang-ar", languageMode === "ar");
     document.querySelectorAll("[data-bilingual-en][data-bilingual-ar]").forEach(el => {
-      const en = el.dataset.bilingualEn, ar = el.dataset.bilingualAr;
-      el.innerHTML = settings.language === "ar" ? `<span class="arabic" lang="ar" dir="rtl">${ar}</span>`
-        : settings.language === "both" ? `<span class="bilingual-label">${en}</span><span class="bilingual-label bilingual-ar arabic" lang="ar" dir="rtl">${ar}</span>` : en;
+      const en = el.dataset.bilingualEn || "";
+      const arText = el.dataset.bilingualAr || "";
+      if (languageMode === "ar") {
+        el.innerHTML = `<span class="bilingual-ar-only" lang="ar" dir="rtl">${arText}</span>`;
+      } else if (languageMode === "both") {
+        el.innerHTML = `<span class="bilingual-en-inline" lang="en">${en}</span><span class="bilingual-separator" aria-hidden="true"> / </span><span class="bilingual-ar-inline" lang="ar" dir="rtl">${arText}</span>`;
+      } else {
+        el.textContent = en;
+      }
     });
     $("#displayLanguage").value = settings.language;
     $("#fontSize").value = settings.fontSize;
