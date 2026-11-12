@@ -25,6 +25,9 @@
   const settingsDialog = $("#settingsDialog");
   const defaults = { language: "both", fontSize: "normal", theme: "midnight" };
   let settings = { ...defaults, ...readSettings() };
+  // Normalize older or differently-cased saved language values so Arabic mode is never silently treated as English.
+  const savedLanguage = String(settings.language || "both").trim().toLowerCase();
+  settings.language = ({ arabic: "ar", "العربية": "ar", english: "en", both: "both", bilingual: "both" })[savedLanguage] || (["ar", "en", "both"].includes(savedLanguage) ? savedLanguage : "both");
   if (!["midnight", "daylight"].includes(settings.theme)) settings.theme = "midnight";
   let lastVerse = "";
   let lastReflection = -1;
