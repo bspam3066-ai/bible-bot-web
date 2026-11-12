@@ -272,7 +272,32 @@
       const data=await fetchJson("./data/daily-readings.json"),g=data.gospel;
       if(!g||(!g.english&&!g.arabic))throw new Error("The Gospel text is not available right now.");
       const body=settings.language==="en"?`<div class="reference">${escapeHtml(g.englishVersion||"English")} · ${escapeHtml(g.englishReference||g.reference||"Gospel")}</div><p class="scripture">${escapeHtml(g.english||"English text unavailable.")}</p>`:settings.language==="ar"?`<div class="reference">${escapeHtml(g.reference||"الإنجيل")}</div><p class="scripture arabic" dir="rtl">${escapeHtml(g.arabic||"النص العربي غير متاح.")}</p>`:`<div class="two-language"><div><div class="reference">ENGLISH${g.englishVersion ? " · " + escapeHtml(g.englishVersion) : ""} · ${escapeHtml(g.englishReference||g.reference||"Gospel")}</div><p class="scripture">${escapeHtml(g.english||"English text unavailable.")}</p></div><div dir="rtl"><div class="reference">العربية · ${escapeHtml(g.reference||"الإنجيل")}</div><p class="scripture arabic" dir="rtl">${escapeHtml(g.arabic||"النص العربي غير متاح.")}</p></div></div>`;
-      setPanel("Gospel of the Day · إنجيل اليوم",`<p class="meaning">${escapeHtml(data.liturgicalDay||"Today's liturgy")} · ${escapeHtml(data.date||"")}</p><article class="reading-block">${body}</article><div class="feature-hero"><h3>Pause and reflect</h3><p class="arabic" dir="rtl">توقّف وتأمّل</p><ol class="reflection-questions"><li>What word or moment in this Gospel stays with you?</li><li>What might Jesus be inviting you to do today?</li><li>Who could you treat with greater kindness because of this Gospel?</li></ol><ol class="reflection-questions arabic" dir="rtl"><li>ما الكلمة أو اللحظة التي بقيت في قلبك من هذا الإنجيل؟</li><li>إلى ماذا يدعوك يسوع اليوم؟</li><li>كيف يمكنك أن تعامل أحدًا بمحبّة أكبر؟</li></ol></div><button class="text-button" data-action="daily">Read the Epistle too ↗</button><p class="meaning">Daily reading source: OLM Maronite Liturgical Calendar. Reflection questions are original prompts, not official Church commentary.</p>`);
+
+      let explanation = null;
+      try {
+        const candidate = await fetchJson("./data/gospel-explanation.json");
+        if (candidate.date === data.date && candidate.gospelReference === g.reference) explanation = candidate;
+      } catch {}
+
+      const section = (key, titleEn, titleAr) => {
+        if (!explanation) return "";
+        const en = explanation.english?.[key] || "";
+        const ar = explanation.arabic?.[key] || "";
+        if (settings.language === "en") return `<article class="reading-block"><h3>${titleEn}</h3><p class="feature-copy">${escapeHtml(en)}</p></article>`;
+        if (settings.language === "ar") return `<article class="reading-block" dir="rtl"><h3>${titleAr}</h3><p class="feature-copy arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</p></article>`;
+        return `<article class="reading-block"><h3>${titleEn} · ${titleAr}</h3><div class="two-language"><p class="feature-copy">${escapeHtml(en)}</p><p class="feature-copy arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</p></div></article>`;
+      };
+
+      const explanationHtml = explanation
+        ? `<div class="feature-hero"><span class="feature-kicker">UNDERSTANDING GOD'S WORD · فَهْم كَلِمَةِ الله</span><h3>Let's understand today's Gospel</h3><p class="arabic" lang="ar" dir="rtl">لنفهم إنجيل اليوم</p></div>
+          ${section("whatHappened","What happens in the Gospel?","ماذا يحدث في الإنجيل؟")}
+          ${section("jesusTeaches","What is Jesus teaching us?","ماذا يعلّمنا يسوع؟")}
+          ${section("liveToday","How can we live this today?","كيف نعيش هذا الإنجيل اليوم؟")}
+          ${section("prayer","A short prayer","صلاة قصيرة")}
+          <p class="meaning">AI-assisted devotional explanation based on today's Gospel. It is not an official Church document. If a question is disputed or unclear, ask a priest or trusted catechist. · <span class="arabic" lang="ar" dir="rtl">تأمّل روحي بمساعدة الذكاء الاصطناعي، يستند إلى إنجيل اليوم، وليس وثيقة كنسيّة رسميّة. عند وجود سؤال خلافي أو غير واضح، استشر كاهنًا أو معلّمًا موثوقًا في الإيمان.</span></p>`
+        : `<div class="feature-hero"><h3>Today's explanation is being prepared.</h3><p class="arabic" lang="ar" dir="rtl">يجري إعداد شرح إنجيل اليوم.</p><p>The Gospel text is available above. The explanation will appear after the daily preparation succeeds.</p></div>`;
+
+      setPanel("Gospel of the Day · إنجيل اليوم",`<p class="meaning">${escapeHtml(data.liturgicalDay||"Today's liturgy")} · ${escapeHtml(data.date||"")}</p><article class="reading-block">${body}</article>${explanationHtml}<div class="feature-hero"><h3>Pause and reflect</h3><p class="arabic" dir="rtl">توقّف وتأمّل</p><ol class="reflection-questions"><li>What word or moment in this Gospel stays with you?</li><li>What might Jesus be inviting you to do today?</li><li>Who could you treat with greater kindness because of this Gospel?</li></ol><ol class="reflection-questions arabic" dir="rtl"><li>ما الكلمة أو اللحظة التي بقيت في قلبك من هذا الإنجيل؟</li><li>إلى ماذا يدعوك يسوع اليوم؟</li><li>كيف يمكنك أن تعامل أحدًا بمحبّة أكبر؟</li></ol></div><button class="text-button" data-action="daily">Read the Epistle too ↗</button><p class="meaning">Daily reading source: OLM Maronite Liturgical Calendar. · مصدر القراءات: الروزنامة الليتورجية المارونية OLM.</p>`);
     }catch(error){setPanel("Gospel unavailable · تعذّر تحميل الإنجيل",`<p class="error-message">${escapeHtml(error.message)}</p><button class="text-button" data-action="daily">Try daily readings ↗</button>`);}
   }
 
