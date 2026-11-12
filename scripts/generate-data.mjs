@@ -44,6 +44,15 @@ Write four short sections in English and Arabic, with equivalent meaning in both
 - liveToday: 1-2 practical, gentle ways a person can live this message today.
 - prayer: a short original prayer inspired by the passage, not presented as a traditional or official liturgical prayer.
 
+IMPORTANT LANGUAGE QUALITY:
+- Write the Arabic in natural, correct, simple Modern Standard Arabic that an ordinary Lebanese Arabic speaker can easily understand.
+- Use familiar words and short sentences. Do not use strange expressions, word-for-word translation, or unnecessary diacritics.
+- Do NOT copy the Arabic Bible passage as the explanation. Explain its meaning in your own clear words.
+- The Arabic must sound like a careful human-written explanation, not machine-translated text. If you cannot express an idea naturally, use a simpler sentence.
+- Keep the English and Arabic meaning equivalent.
+PASSAGE COVERAGE:
+- In whatHappened, cover the important movement from the beginning to the end of the supplied passage. Do not stop after the first verse or repeat only one idea.
+- Mention the people's different reactions when those reactions appear in the passage.
 Keep each section concise, warm, respectful, and understandable to a young reader. Avoid preaching, guilt, invented certainty, and denominational arguments. Return ONLY valid JSON with this exact shape:
 {"english":{"whatHappened":"...","jesusTeaches":"...","liveToday":"...","prayer":"..."},"arabic":{"whatHappened":"...","jesusTeaches":"...","liveToday":"...","prayer":"..."}}
 
