@@ -89,3 +89,6 @@
 /* Site-wide accessibility scaling: enlarge the complete interface, not only reading panels. */
 html{--site-scale:1}
 body{zoom:var(--site-scale,1)}
+
+/* Bilingual interface labels: compact Arabic support across the homepage and navigation. */
+.bilingual-label{display:block;line-height:1.35}.bilingual-ar{font-family:Amiri,serif;direction:rtl;letter-spacing:0;font-size:.9em;margin-top:2px}.nav-link .bilingual-ar{font-size:.78em;opacity:.86}.community-grid .bilingual-ar{font-size:.88em}.spotlight-copy [data-bilingual-en] .bilingual-ar{font-size:.78em}.bilingual-label.arabic{text-align:inherit}
