@@ -154,6 +154,31 @@
     try {
       const beirutDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Beirut", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
       const data = await fetchJson(`./data/daily-readings.json?day=${beirutDate}`);
+      let explanation = null;
+      try {
+        const candidate = await fetchJson("./data/gospel-explanation.json");
+        if (candidate.date === data.date && candidate.gospelReference === data.gospel?.reference) {
+          explanation = candidate;
+        }
+      } catch {}
+
+      const explanationSection = (key, titleEn, titleAr) => {
+        if (!explanation) return "";
+        const en = explanation.english?.[key] || "";
+        const ar = explanation.arabic?.[key] || "";
+        if (!en && !ar) return "";
+        if (settings.language === "en") return `<article class="reading-block"><h3>${titleEn}</h3><p class="feature-copy">${escapeHtml(en)}</p></article>`;
+        if (settings.language === "ar") return `<article class="reading-block" dir="rtl"><h3>${titleAr}</h3><p class="feature-copy arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</p></article>`;
+        return `<article class="reading-block"><h3>${titleEn} · ${titleAr}</h3><div class="two-language"><p class="feature-copy">${escapeHtml(en)}</p><p class="feature-copy arabic" lang="ar" dir="rtl">${escapeHtml(ar)}</p></div></article>`;
+      };
+      const explanationHtml = explanation
+        ? `<section class="daily-gospel-explanation"><div class="feature-hero"><span class="feature-kicker">UNDERSTANDING GOD'S WORD · فَهْم كَلِمَةِ الله</span><h3>Today's Gospel, explained simply</h3><p class="arabic" lang="ar" dir="rtl">شرح مبسّط لإنجيل اليوم</p></div>
+            ${explanationSection("whatHappened","What happens in the Gospel?","ماذا يحدث في الإنجيل؟")}
+            ${explanationSection("jesusTeaches","What is Jesus teaching us?","ماذا يعلّمنا يسوع؟")}
+            ${explanationSection("liveToday","How can we live this today?","كيف نعيش هذا الإنجيل اليوم؟")}
+            ${explanationSection("prayer","A short prayer","صلاة قصيرة")}
+            <p class="meaning">AI-assisted devotional explanation based on today's Gospel. It is not an official Church document. · <span class="arabic" lang="ar" dir="rtl">تأمّل روحي بمساعدة الذكاء الاصطناعي، يستند إلى إنجيل اليوم، وليس وثيقة كنسيّة رسميّة.</span></p></section>`
+        : "";
       const blocks = [];
       for (const item of [data.epistle, data.gospel]) {
         if (!item) continue;
@@ -169,7 +194,7 @@
       }
       if (!blocks.length) throw new Error("The OLM page did not return the daily reading references.");
       const color = data.liturgicalColor || "Not detected";
-      setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "Liturgical color"}: ${escapeHtml(color)}</p><p class="meaning">Source: <a href="https://www.olm.org.lb/ar/liturgical-calendar" target="_blank" rel="noopener">OLM Maronite Liturgical Calendar</a></p>`);
+      setPanel(data.liturgicalDay || "Today's readings", `<p class="reference">${escapeHtml(data.date || "")}</p>${explanationHtml}${blocks.join("")}<p class="meaning">✦ ${settings.language === "ar" ? "اللون الليتورجيّ" : "Liturgical color"}: ${escapeHtml(color)}</p><p class="meaning">Source: <a href="https://www.olm.org.lb/ar/liturgical-calendar" target="_blank" rel="noopener">OLM Maronite Liturgical Calendar</a></p>`);
     } catch (error) {
       setPanel(settings.language === "ar" ? "تعذّر تحميل القراءات" : "Readings unavailable", `<p class="error-message">${escapeHtml(error.message)}</p><p class="meaning">The latest readings could not be loaded. Please try again later.</p>`);
     }
