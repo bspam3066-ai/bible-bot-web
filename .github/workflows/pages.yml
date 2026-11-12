@@ -67,6 +67,18 @@ jobs:
           cp index.html app.js botData.js prayers.js saints.js style.css _site/
           node scripts/generate-data.mjs
 
+      - name: Save today's explanation so later visitors reuse it
+        run: |
+          if [ -f data/gospel-explanation.json ]; then
+            git add data/gospel-explanation.json
+            if ! git diff --cached --quiet; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git commit -m "Save daily Gospel explanation [skip ci]"
+              git push
+            fi
+          fi
+
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
