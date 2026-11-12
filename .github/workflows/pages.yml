@@ -9,7 +9,7 @@ on:
     - cron: "15 1,4,7 * * *"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -36,6 +36,30 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/olm-deps" cheerio@1.0.0
           ln -s "$RUNNER_TEMP/olm-deps/node_modules" "$GITHUB_WORKSPACE/node_modules"
+
+      - name: Check whether today's Gospel explanation is already saved
+        id: gospel-cache
+        run: |
+          TODAY="$(TZ=Asia/Beirut date +%F)"
+          if [ -f data/gospel-explanation.json ] && grep -q "\"date\": \"$TODAY\"" data/gospel-explanation.json; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Start the free local Gospel explanation model
+        if: steps.gospel-cache.outputs.needed == 'true'
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          (ollama serve > /tmp/ollama.log 2>&1 &)
+          for attempt in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull qwen3:4b
 
       - name: Assemble static website
         run: |
