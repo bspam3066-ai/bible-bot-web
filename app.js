@@ -113,7 +113,7 @@
     return index;
   }
   async function fetchJson(url) {
-    const response = await fetch(url);
+    const response = await fetch(url, { cache: "no-store" });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
     return payload;
@@ -152,7 +152,8 @@
   async function showDailyReadings() {
     setPanel(settings.language === "ar" ? "قراءات اليوم" : "Today's Maronite readings", `<p class="loading">⏳ Fetching OLM readings… / جارٍ جلب القراءات الليتورجية…</p>`);
     try {
-      const data = await fetchJson("./data/daily-readings.json");
+      const beirutDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Beirut", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      const data = await fetchJson(`./data/daily-readings.json?day=${beirutDate}`);
       const blocks = [];
       for (const item of [data.epistle, data.gospel]) {
         if (!item) continue;
