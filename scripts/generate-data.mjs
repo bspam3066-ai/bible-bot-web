@@ -151,7 +151,7 @@ Required shape:
     const arabicDraft = translated.arabic || translated.Arabic || {};
     for (const field of required) {
       const value = arabicDraft[field];
-      if (typeof value !== "string" || !value.trim() || !/[\\u0600-\\u06FF]/.test(value)) {
+      if (typeof value !== "string" || !value.trim() || !/[\u0600-\u06FF]/.test(value)) {
         throw new Error("Arabic translation is missing or invalid for " + field);
       }
     }
