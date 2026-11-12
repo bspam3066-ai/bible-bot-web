@@ -5,7 +5,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "15 3 * * *"
+    # Retry the daily OLM refresh several times; all times are UTC.
+    - cron: "15 1,4,7 * * *"
 
 permissions:
   contents: read
