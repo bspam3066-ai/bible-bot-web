@@ -84,3 +84,8 @@
 .output-content .quiz-feedback{font-size:calc(12px * var(--reading-scale))}
 .output-content .heritage-grid p{font-size:calc(12px * var(--reading-scale))}
 .output-content .intention-item p{font-size:calc(15px * var(--reading-scale))}
+
+
+/* Site-wide accessibility scaling: enlarge the complete interface, not only reading panels. */
+html{--site-scale:1}
+body{zoom:var(--site-scale,1)}
