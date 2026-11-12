@@ -560,7 +560,7 @@
   ];
   function showSaintOfDay(){
     const day=Math.floor(Date.now()/86400000), saint=featuredSaints[((day%featuredSaints.length)+featuredSaints.length)%featuredSaints.length];
-    setPanel("Saint of the Day · قديس اليوم",`<div class="feature-hero"><span class="feature-kicker">TODAY’S SAINT · ${saint.date.toUpperCase()}</span><h3>${escapeHtml(saint.en)}</h3><p class="arabic" lang="ar" dir="rtl">${escapeHtml(saint.ar)}</p></div><div class="saint-detail">${featureText(saint.story,saint.storyAr)}<p class="meaning">This is a featured daily profile, not a claim that this is the saint listed in the official liturgical calendar today. / هذه نبذة يومية مختارة وليست تأكيدًا أنّ هذا هو قديس التقويم الليتورجي اليوم.</p><button class="text-button" data-view="saints">Explore all saints ↗</button></div>`);
+    setPanel("Saint of the Day · قديس اليوم",`<div class="feature-hero"><span class="feature-kicker">${interfaceLabel("TODAY’S SAINT","قديس اليوم")} · ${saint.date.toUpperCase()}</span><h3>${escapeHtml(saint.en)}</h3><p class="arabic" lang="ar" dir="rtl">${escapeHtml(saint.ar)}</p></div><div class="saint-detail">${featureText(saint.story,saint.storyAr)}<p class="meaning">This is a featured daily profile, not a claim that this is the saint listed in the official liturgical calendar today. / هذه نبذة يومية مختارة وليست تأكيدًا أنّ هذا هو قديس التقويم الليتورجي اليوم.</p><button class="text-button" data-view="saints">${interfaceLabel("Explore all saints ↗","اكتشف جميع القديسين ←")}</button></div>`);
   }
   let calendarMonth=new Date().getMonth(),calendarYear=new Date().getFullYear();
   const feastDays={"01-01":"Mary, Mother of God · مريم والدة الإله","01-06":"Epiphany · عيد الدنح","03-19":"Saint Joseph · مار يوسف","03-25":"Annunciation · عيد البشارة","06-29":"Saints Peter and Paul · مار بطرس وبولس","08-15":"Assumption of Mary · انتقال العذراء","09-08":"Nativity of Mary · مولد العذراء","11-01":"All Saints · عيد جميع القديسين","12-08":"Immaculate Conception · الحبل بلا دنس","12-25":"Christmas · عيد الميلاد"};
@@ -578,7 +578,7 @@
   }
   function showIntentions(){
     let saved=[];try{saved=JSON.parse(localStorage.getItem("verbum-intentions")||"[]");if(!Array.isArray(saved))saved=[];}catch{saved=[];}
-    const rows=saved.map((x,i)=>`<article class="intention-item"><p>${escapeHtml(x.text)}</p><small>${new Date(x.date).toLocaleDateString()}</small><button class="quiet-button" data-intention-delete="${i}" aria-label="Delete intention">${interfaceLabel("Remove","إزالة")}</button></article>`).join("");
+    const rows=saved.map((x,i)=>`<article class="intention-item"><p>${escapeHtml(x.text)}</p><small>${settings.language==="ar"?new Date(x.date).toLocaleDateString("ar-LB"):settings.language==="en"?new Date(x.date).toLocaleDateString("en"):new Date(x.date).toLocaleDateString("en")+" · "+new Date(x.date).toLocaleDateString("ar-LB")}</small><button class="quiet-button" data-intention-delete="${i}" aria-label="Delete intention">${interfaceLabel("Remove","إزالة")}</button></article>`).join("");
     setPanel("Prayer Intentions · نيات الصلاة",`<div class="feature-hero"><h3>${interfaceLabel("What shall we pray for?","بماذا نصلّي اليوم؟")}</h3><p class="arabic" dir="rtl">بماذا نصلّي اليوم؟</p><p>${interfaceLabel("Write a personal intention and keep it here as a reminder to pray.","اكتب نيّة صلاة شخصية واحتفظ بها هنا لتذكّر نفسك بالصلاة.")}</p></div><form id="intentionForm" class="intention-form"><label for="intentionText">${interfaceLabel("Your intention","نيّة الصلاة")}</label><textarea id="intentionText" maxlength="500" required placeholder="${settings.language==="ar"?"اكتب نيّة قصيرة…":settings.language==="en"?"Write a short intention…":"Write a short intention… / اكتب نيّة قصيرة…"}"></textarea><button class="primary-button" type="submit">${interfaceLabel("Save on this device","احفظ على هذا الجهاز")}</button></form><p class="meaning">${interfaceLabel("Privacy: intentions are stored only in this browser on this device. They are not sent to the website or shared with anyone. Avoid entering private details about yourself or others.","الخصوصية: تُحفَظ النيّات على هذا الجهاز وفي هذا المتصفّح فقط، ولا تُرسل إلى الموقع أو تُشارك مع أحد. تجنّب إدخال معلومات شخصية أو خاصة عنك أو عن الآخرين.")}</p><div class="intentions-list">${rows || '<p class="meaning">' + interfaceLabel("Your saved intentions will appear here.","ستظهر نيّاتك المحفوظة هنا.") + '</p>'}</div>`);
   }
 
@@ -596,8 +596,8 @@
     if (view === "heritage") return showHeritage();
     if (view === "saints" || view === "priest") { window.dispatchEvent(new CustomEvent("verbum:view", { detail: view })); return; }
     if (view === "reflection") return showReflection();
-    panelTitle.textContent = "Begin with Scripture";
-    output.innerHTML = `<p class="empty-state">${escapeHtml(translations[settings.language === "ar" ? "ar" : "en"].emptyPrompt)}</p>`;
+    panelTitle.textContent = interfaceTitle("Begin with Scripture","ابدأ بكلمة الله");
+    output.innerHTML = `<p class="empty-state">${interfaceLabel(translations.en.emptyPrompt,translations.ar.emptyPrompt)}</p>`;
   }
 
   document.addEventListener("click", event => {
