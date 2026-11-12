@@ -27,7 +27,7 @@ try {
   savedExplanation = JSON.parse(await fs.readFile(explanationPath, "utf8"));
 } catch {}
 
-if (savedExplanation?.date !== beirutDate) {
+if (savedExplanation?.date !== beirutDate && readings.date === beirutDate) {
   try {
     if (!readings.gospel?.english || !readings.gospel?.arabic) {
       throw new Error("Both Gospel language texts are required before generating an explanation.");
@@ -92,7 +92,7 @@ Arabic Gospel text: ${readings.gospel.arabic}`;
   }
 }
 
-if (savedExplanation?.date === beirutDate) {
+if (savedExplanation?.date === beirutDate && readings.date === beirutDate) {
   await fs.copyFile(explanationPath, path.join(outputDir, "gospel-explanation.json"));
 }
 
