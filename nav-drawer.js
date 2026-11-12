@@ -3,10 +3,13 @@
   const menu = document.getElementById("sideMenu");
   const backdrop = document.getElementById("navBackdrop");
   const closeButton = document.getElementById("sideMenuClose");
-  const settingsButton = document.getElementById("sideMenuSettings");
-  if (!toggle || !menu || !backdrop || !closeButton) return;
+  const settingsShortcut = document.getElementById("sideMenuSettings");
+  if (!toggle || !menu || !backdrop || !closeButton) {
+    console.error("Verbum Dei navigation: required menu elements are missing.");
+    return;
+  }
 
-  const closeMenu = (restoreFocus = true) => {
+  const closeMenu = (restoreFocus = false) => {
     menu.classList.remove("is-open");
     menu.setAttribute("aria-hidden", "true");
     menu.setAttribute("inert", "");
@@ -18,38 +21,44 @@
   };
 
   const openMenu = () => {
-    menu.classList.add("is-open");
-    menu.setAttribute("aria-hidden", "false");
-    menu.removeAttribute("inert");
     backdrop.hidden = false;
+    menu.removeAttribute("inert");
+    menu.setAttribute("aria-hidden", "false");
+    menu.classList.add("is-open");
     toggle.setAttribute("aria-expanded", "true");
     toggle.setAttribute("aria-label", "Close navigation menu");
     document.body.classList.add("menu-open");
     closeButton.focus();
   };
 
-  toggle.addEventListener("click", () => {
-    toggle.getAttribute("aria-expanded") === "true" ? closeMenu() : openMenu();
+  toggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (toggle.getAttribute("aria-expanded") === "true") closeMenu(true);
+    else openMenu();
   });
-  closeButton.addEventListener("click", () => closeMenu());
-  backdrop.addEventListener("click", () => closeMenu());
+  closeButton.addEventListener("click", () => closeMenu(true));
+  backdrop.addEventListener("click", () => closeMenu(true));
 
-  // Keep section navigation in the site's existing app.js routing system.
-  menu.querySelectorAll("[data-view]").forEach(link => {
+  // Let app.js receive the original data-view click and route to the section.
+  menu.querySelectorAll("[data-view]").forEach((link) => {
     link.addEventListener("click", () => {
-      const view = link.dataset.view;
       closeMenu(false);
-      document.dispatchEvent(new CustomEvent("verbum:menu-select", { detail: view }));
     });
   });
 
-  if (settingsButton) settingsButton.addEventListener("click", () => {
-    closeMenu(false);
-    const settings = document.getElementById("settingsButton");
-    if (settings) settings.click();
+  if (settingsShortcut) {
+    settingsShortcut.addEventListener("click", () => {
+      closeMenu(false);
+      const settingsButton = document.getElementById("settingsButton");
+      if (settingsButton) settingsButton.click();
+    });
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      closeMenu(true);
+    }
   });
 
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") closeMenu();
-  });
+  closeMenu(false);
 })();
