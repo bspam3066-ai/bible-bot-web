@@ -69,7 +69,7 @@ Arabic Gospel text: ${readings.gospel.arabic}`;
     // Small local models can occasionally omit a key on the first structured response.
     // Retry once with a shorter, stricter instruction instead of silently publishing nothing.
     for (let attempt = 1; attempt <= 2; attempt++) {
-      const retryPrompt = attempt === 1 ? prompt : `Return a COMPLETE JSON object only. Include every one of these exact keys at the top level: "english" and "arabic". Under EACH language include all four non-empty string fields: "whatHappened", "jesusTeaches", "liveToday", and "prayer". Do not omit or rename any field. Keep each value short (one or two sentences). Use only the Gospel text below; do not invent details or make disputed doctrinal claims. English must be in English and Arabic must be in clear Arabic.
+      const retryPrompt = attempt === 1 ? prompt : `Return a COMPLETE JSON object only. Include every one of these exact keys at the top level: "english" and "arabic". Under EACH language include all four non-empty string fields: "whatHappened", "jesusTeaches", "liveToday", and "prayer". Do not omit or rename any field. Keep each value short (one or two sentences). Use only the Gospel text below; do not invent details or make disputed doctrinal claims. English must be in English. Arabic must be natural, correct, simple Modern Standard Arabic with short sentences and familiar words, as if carefully written by a human for young readers. Do not copy the Arabic Bible text, use awkward literal translations, or add unnecessary diacritics. The "whatHappened" section must cover the whole passage, including how people react at the end.
 
 Gospel reference: ${readings.gospel.reference}
 English passage: ${readings.gospel.english}
