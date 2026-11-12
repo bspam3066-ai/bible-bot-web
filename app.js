@@ -636,6 +636,9 @@
   });
 
   const now = new Date();
-  $("#todayDate").textContent = now.toLocaleDateString(undefined, { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  const dateOptions = { weekday:"long", year:"numeric", month:"long", day:"numeric" };
+  const englishDate = now.toLocaleDateString("en", dateOptions);
+  const arabicDate = now.toLocaleDateString("ar-LB", dateOptions);
+  $("#todayDate").textContent = settings.language === "ar" ? arabicDate : settings.language === "en" ? englishDate : `${englishDate} · ${arabicDate}`;
   applySettings();
 })();
