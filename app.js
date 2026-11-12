@@ -199,7 +199,7 @@
       const blocks = [];
       for (const item of [data.epistle, data.gospel]) {
         if (!item) continue;
-        const heading = item.type === "epistle" ? (settings.language === "ar" ? "الرسالة" : "Epistle") : (settings.language === "ar" ? "الإنجيل" : "Gospel");
+        const heading = item.type === "epistle" ? interfaceLabel("Epistle","الرسالة") : interfaceLabel("Gospel","الإنجيل");
         const text = settings.language === "ar" ? item.arabic : settings.language === "en" ? item.english : null;
         let body = "";
         if (settings.language === "both") {
@@ -239,7 +239,7 @@
     const isArabic = settings.language === "ar";
     const title = interfaceTitle("Prayer Library","مكتبة الصلوات");
     const categories = library.categories.map(item =>
-      `<button class="prayer-filter ${item.id === category ? "active" : ""}" data-prayer-category="${item.id}">${isArabic ? item.ar : item.en}</button>`
+      `<button class="prayer-filter ${item.id === category ? "active" : ""}" data-prayer-category="${item.id}">${settings.language === "both" ? item.en + " · " + item.ar : isArabic ? item.ar : item.en}</button>`
     ).join("");
     const items = library.items.filter(item => category === "all" || item.category === category);
     const cards = items.map(item => {
@@ -247,9 +247,7 @@
       const note = isArabic ? item.noteAr : item.noteEn;
       return `<article class="prayer-entry"><div class="prayer-entry-heading"><span class="prayer-cross">✝</span><div><h3>${isArabic ? escapeHtml(item.arTitle) : escapeHtml(item.enTitle)}</h3><small>${escapeHtml(note)}</small></div></div>${body}</article>`;
     }).join("");
-    const intro = isArabic
-      ? "صلوات تساعدك على التقرّب من الله في كل يوم. اختر صلاة وخذ لحظة هادئة."
-      : "A collection of traditional Catholic prayers and original daily devotions. Choose a prayer and take a quiet moment.";
+    const intro = interfaceLabel("A collection of traditional Catholic prayers and original daily devotions. Choose a prayer and take a quiet moment.","مجموعة من الصلوات الكاثوليكية المتوارثة والتأمّلات اليومية. اختر صلاة وخذ لحظة هادئة.");
     setPanel(title, `
       <div class="prayer-library-hero">
         <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Lord%27s_Prayer_and_a_crucifix.jpg" alt="A crucifix resting on an open Bible showing the Lord's Prayer" loading="lazy">
@@ -258,7 +256,7 @@
       <div class="prayer-filters">${categories}</div>
       <div class="prayer-list">${cards}</div>
       <p class="prayer-credit">Image: James Chan (jclk8888) · CC0 Public Domain · <a href="https://commons.wikimedia.org/wiki/File:Lord%27s_Prayer_and_a_crucifix.jpg" target="_blank" rel="noopener">Image details</a></p>
-      <p class="meaning">${isArabic ? "ملاحظة: الصلوات الأساسية هي صلوات كاثوليكية متوارثة. أما الصلوات التأمّلية وطلبات الشفاعة فهي صيغ تعبّدية أُعدّت للموقع وليست نصوصًا طقسية رسمية." : "Note: The traditional prayers are established Catholic prayers. The daily devotions and saint-intercession texts are original devotional wording for this site, not official liturgical texts."}</p>
+      <p class="meaning">${interfaceLabel("Note: The traditional prayers are established Catholic prayers. The daily devotions and saint-intercession texts are original devotional wording for this site, not official liturgical texts.","ملاحظة: الصلوات الأساسية هي صلوات كاثوليكية متوارثة. أمّا الصلوات التأمّلية وطلبات الشفاعة فهي صيغ تعبّدية أُعدّت للموقع وليست نصوصًا طقسية رسمية.")}</p>
     `);
   }
 
@@ -537,7 +535,7 @@
     if(quizIndex>=quizRound.length){
       const used=readUsedQuizIds().size;
       const ar=settings.language!=="en";
-      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>${settings.language==="ar"?"اكتملت المسابقة!":"Quiz complete!"}</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizRound.length}</div><p>${settings.language==="ar"?"أجبت إجابة صحيحة عن":"You got"} ${quizScore} ${settings.language==="ar"?"من أصل":"out of"} ${quizRound.length}.</p><p class="meaning">${used} / ${quizQuestions.length} · ${ar?"سؤالًا استُخدم في هذه الدورة. لن تتكرّر الأسئلة حتى تُستعمل المجموعة كاملة.":"questions used in this cycle. Questions will not repeat until the full bank has been played."}</p><button class="primary-button" data-quiz-restart>${settings.language==="ar"?"مسابقة جديدة ↻":"New quiz ↻"}</button></div>`);return;
+      setPanel("Bible Quiz · مسابقة الكتاب المقدّس",`<div class="feature-hero"><h3>${interfaceLabel("Quiz complete!","اكتملت المسابقة!")}</h3><p class="arabic" dir="rtl">انتهت المسابقة!</p><div class="quiz-score">${quizScore} / ${quizRound.length}</div><p>${settings.language==="ar"?`أجبت إجابة صحيحة عن ${quizScore} من أصل ${quizRound.length}.`:settings.language==="en"?`You got ${quizScore} out of ${quizRound.length}.`:`You got ${quizScore} out of ${quizRound.length}. · أجبت إجابة صحيحة عن ${quizScore} من أصل ${quizRound.length}.`}</p><p class="meaning">${used} / ${quizQuestions.length} · ${ar?"سؤالًا استُخدم في هذه الدورة. لن تتكرّر الأسئلة حتى تُستعمل المجموعة كاملة.":"questions used in this cycle. Questions will not repeat until the full bank has been played."}</p><button class="primary-button" data-quiz-restart>${interfaceLabel("New quiz ↻","مسابقة جديدة ↻")}</button></div>`);return;
     }
     const q=quizRound[quizIndex], lang=settings.language;
     let qAr="", answersAr=[];
@@ -576,7 +574,7 @@
     setPanel("Catholic Calendar · التقويم الكاثوليكي",`<div class="calendar-head"><button class="quiet-button" data-calendar-prev aria-label="Previous month">←</button><h3>${monthName}</h3><button class="quiet-button" data-calendar-next aria-label="Next month">→</button></div><div class="calendar-grid calendar-weekdays">${weekdays.map((x,i)=>`<span>${interfaceLabel(x,weekdaysAr[i])}</span>`).join("")}</div><div class="calendar-grid">${cells.join("")}</div><div class="calendar-detail" id="calendarDetail"><p class="meaning">${dataNote}</p></div><button class="text-button" data-action="daily">${interfaceLabel("Open today’s Maronite readings ↗","افتح قراءات اليوم المارونية ←")}</button>`);
   }
   function showHeritage(){
-    setPanel("Lebanese Catholic Heritage · التراث الكاثوليكي اللبناني",`<div class="feature-hero heritage-hero"><span class="feature-kicker">FAITH ROOTED IN LEBANON</span><h3>Mountains, monasteries & a living tradition.</h3><p class="arabic" lang="ar" dir="rtl">إيمان متجذّر في لبنان: جبال وأديار وتقاليد حيّة.</p></div><div class="heritage-grid"><article><h3>${interfaceLabel("The Maronite Church","الكنيسة المارونية")}</h3><p>The Maronite Church is an Eastern Catholic Church in full communion with the Bishop of Rome. Its Syriac Antiochene liturgical tradition has deep roots in Lebanon.</p><p class="arabic" dir="rtl">الكنيسة المارونية كنيسة شرقية كاثوليكية في شركة كاملة مع أسقف روما، وتحمل تقليدًا ليتورجيًا سريانيًا أنطاكيًا متجذّرًا في لبنان.</p></article><article><h3>${interfaceLabel("Qadisha Valley","وادي قاديشا")}</h3><p>The Holy Valley in northern Lebanon preserves a remarkable landscape of monasteries, hermitages and centuries of Christian monastic life.</p><p class="arabic" dir="rtl">يحفظ الوادي المقدّس في شمال لبنان أديرة ومحابس وآثارًا من قرون طويلة من الحياة الرهبانية المسيحية.</p></article><article><h3>${interfaceLabel("Our saints & blesseds","قديسونا وطوباويّونا")}</h3><p>Saint Charbel, Saint Rafqa and Saint Nimatullah are among Lebanon’s best-known Maronite saints. Blessed Estephan El Douaihy and other witnesses also belong to this story.</p><p class="arabic" dir="rtl">من أشهر قديسي لبنان الموارنة شربل ورفقا ونعمة الله، كما ينتمي الطوباوي اسطفان الدويهي وشهود آخرون إلى هذا التاريخ.</p></article><article><h3>${interfaceLabel("Living heritage","تراث حيّ")}</h3><p>Faith is carried through parish life, family prayer, the Divine Liturgy, hymns, feast days and the care of neighbours.</p><p class="arabic" dir="rtl">يستمرّ الإيمان في حياة الرعايا وصلاة العائلة والقداس الإلهي والترانيم والأعياد وخدمة القريب.</p></article></div><p class="meaning">${interfaceLabel("Explore the saint biographies and daily readings for more. This introduction is educational and does not replace parish or Church sources.","اكتشف المزيد في سير القديسين وقراءات اليوم. هذا التعريف تثقيفي ولا يحلّ محلّ مصادر الرعية أو الكنيسة.")}</p><button class="text-button" data-view="saints">${interfaceLabel("Discover Lebanese saints ↗","اكتشف القديسين اللبنانيين ←")}</button>`);
+    setPanel("Lebanese Catholic Heritage · التراث الكاثوليكي اللبناني",`<div class="feature-hero heritage-hero"><span class="feature-kicker">${interfaceLabel("FAITH ROOTED IN LEBANON","إيمان متجذّر في لبنان")}</span><h3>${interfaceLabel("Mountains, monasteries & a living tradition.","جبال وأديار وتقاليد حيّة.")}</h3><p class="arabic" lang="ar" dir="rtl">إيمان متجذّر في لبنان: جبال وأديار وتقاليد حيّة.</p></div><div class="heritage-grid"><article><h3>${interfaceLabel("The Maronite Church","الكنيسة المارونية")}</h3><p>The Maronite Church is an Eastern Catholic Church in full communion with the Bishop of Rome. Its Syriac Antiochene liturgical tradition has deep roots in Lebanon.</p><p class="arabic" dir="rtl">الكنيسة المارونية كنيسة شرقية كاثوليكية في شركة كاملة مع أسقف روما، وتحمل تقليدًا ليتورجيًا سريانيًا أنطاكيًا متجذّرًا في لبنان.</p></article><article><h3>${interfaceLabel("Qadisha Valley","وادي قاديشا")}</h3><p>The Holy Valley in northern Lebanon preserves a remarkable landscape of monasteries, hermitages and centuries of Christian monastic life.</p><p class="arabic" dir="rtl">يحفظ الوادي المقدّس في شمال لبنان أديرة ومحابس وآثارًا من قرون طويلة من الحياة الرهبانية المسيحية.</p></article><article><h3>${interfaceLabel("Our saints & blesseds","قديسونا وطوباويّونا")}</h3><p>Saint Charbel, Saint Rafqa and Saint Nimatullah are among Lebanon’s best-known Maronite saints. Blessed Estephan El Douaihy and other witnesses also belong to this story.</p><p class="arabic" dir="rtl">من أشهر قديسي لبنان الموارنة شربل ورفقا ونعمة الله، كما ينتمي الطوباوي اسطفان الدويهي وشهود آخرون إلى هذا التاريخ.</p></article><article><h3>${interfaceLabel("Living heritage","تراث حيّ")}</h3><p>Faith is carried through parish life, family prayer, the Divine Liturgy, hymns, feast days and the care of neighbours.</p><p class="arabic" dir="rtl">يستمرّ الإيمان في حياة الرعايا وصلاة العائلة والقداس الإلهي والترانيم والأعياد وخدمة القريب.</p></article></div><p class="meaning">${interfaceLabel("Explore the saint biographies and daily readings for more. This introduction is educational and does not replace parish or Church sources.","اكتشف المزيد في سير القديسين وقراءات اليوم. هذا التعريف تثقيفي ولا يحلّ محلّ مصادر الرعية أو الكنيسة.")}</p><button class="text-button" data-view="saints">${interfaceLabel("Discover Lebanese saints ↗","اكتشف القديسين اللبنانيين ←")}</button>`);
   }
   function showIntentions(){
     let saved=[];try{saved=JSON.parse(localStorage.getItem("verbum-intentions")||"[]");if(!Array.isArray(saved))saved=[];}catch{saved=[];}
