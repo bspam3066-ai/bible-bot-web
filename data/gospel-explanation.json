@@ -1,18 +1,18 @@
 {
-  "date": "2026-11-12",
-  "gospelReference": "يو 10 / 17 - 21",
-  "model": "Carefully reviewed bilingual explanation",
-  "generatedAt": "2026-11-12T14:46:17.670Z",
+  "date": "2026-11-13",
+  "gospelReference": "مر 2 / 18 - 22",
+  "model": "Qwen3 4B · locally run",
+  "generatedAt": "2026-11-13T07:58:43.958Z",
   "english": {
-    "whatHappened": "Jesus explains that he willingly gives his life and has the authority to take it up again, as the Father has given him this mission. After hearing him, the people disagree: some reject his words, while others point to the good work he has done, including giving sight to a blind man.",
-    "jesusTeaches": "Jesus is not describing his death as something forced on him. He speaks of giving his life freely, in love and obedience to the Father. The different reactions also remind us that people do not all respond to Jesus in the same way.",
-    "liveToday": "We can remember that Jesus' love is freely given and trust him when life is difficult. We can also listen carefully, look honestly at what is good and true, and avoid judging too quickly.",
-    "prayer": "Lord Jesus, help us understand your love and trust you. Give us open hearts to recognize what is true and the courage to follow you. Amen."
+    "whatHappened": "John's disciples and the Pharisees were fasting, but Jesus' disciples weren't. When they asked Jesus why, he explained that just like wedding guests can't fast while the bridegroom is with them, his disciples won't fast until after he's no longer with them. He also said that trying to fix old clothes with new patches or putting new wine in old wineskins would cause problems.",
+    "jesusTeaches": "Jesus teaches that his disciples won't fast until he's no longer with them, just as wedding guests don't fast while the bridegroom is present. He also shows that trying to mix new things with old ones (like new patches on old clothes or new wine in old skins) can cause problems.",
+    "liveToday": "When you feel like you need to change something old in your life, try to find a way to make it work without causing more problems. Be gentle with yourself and others when you're trying to grow.",
+    "prayer": "Jesus, you are the bridegroom who brings joy and peace. Help us to wait for your time with us, and when you're no longer here, guide us to live with hope and kindness."
   },
   "arabic": {
-    "whatHappened": "يشرح يسوع أنّه يبذل حياته بإرادته، وأنّه يملك السلطان ليستعيدها، بحسب الرسالة التي أعطاه إيّاها الآب. وبعد كلامه، يختلف الناس في موقفهم منه: فبعضهم يرفض كلامه، بينما يرى آخرون أنّ أعماله، ومنها شفاء الأعمى، تدعوهم إلى الإصغاء إليه.",
-    "jesusTeaches": "لا يقول يسوع إنّ حياته تُؤخذ منه بالقوّة، بل إنّه يقدّمها بإرادته، محبّةً وطاعةً للآب. كما نرى أنّ الناس لا يستجيبون جميعًا ليسوع بالطريقة نفسها؛ فهناك من يرفضه، وهناك من يتأمّل في أعماله.",
-    "liveToday": "يمكننا أن نتذكّر أنّ يسوع يقدّم لنا محبّته بحرّيّة، وأن نثق به في الأوقات الصعبة. ويمكننا أيضًا أن نصغي بانتباه، ونبحث عمّا هو حقّ وخير، وألّا نتسرّع في الحكم على الآخرين.",
-    "prayer": "يا ربّ يسوع، ساعدنا على فهم محبّتك والثقة بك. افتح قلوبنا لنعرف الحقّ، وامنحنا الشجاعة لنتبعك. آمين."
+    "whatHappened": "كانت Disciples من يوحنا وفريسيون يُصَلِّونَ في الصلاة، لكن disciples من يسوع لم يُصَلِّونَ. عندما سألوا يسوع لماذا، قال لهم: \"مثلًا، لا يُصَلِّونَ الزواج عندما يكون العُرْضُ معهم، فكذلك لن يُصَلِّونَ أتباعي حتى يَغَيِّرُكَ يسوع معهم. كما أن محاولة إصلاح ملابس قديمة بقطعة جديدة أو وضع فيلم جديد في كيس قديم سَيَسببُ مشاكلًا.\"",
+    "jesusTeaches": "يسوع يُعلِّم أن أتباعه لن يُصَلِّونَ حتى يَغَيِّرُكَ يسوع معهم، مثلًا، لا يُصَلِّونَ الزواج عندما يكون العُرْضُ معهم. كما يُظهر أن محاولة مزيج أشياء جديدة مع قديمة (مثل إضافة قطعة جديدة على ملابس قديمة أو وضع فيلم جديد في كيس قديم) سَيَسببُ مشاكلًا.",
+    "liveToday": "عندما تشعر أنك بحاجة لتعديل شيء قديم في حياتك، حاول إيجاد طريقة تُعَالجُ دون أن تُسببُ مشاكلًا. اُحْسِنَ مع نفسك وآخرين عندما تُحاول النمو.",
+    "prayer": "يسوع، أنت العُرْضُ الذي يُعَلِّمُ السعادة والسلام. اجعلنا ننتظِر لحظتك معنا، وعندما تَغَيِّرُ، ارشدنا لحياة تُعَلِّمُ الأمل والطيبة."
   }
 }
