@@ -5,19 +5,33 @@ import dailyReadings from "../netlify/functions/daily-readings.js";
 const outputDir = path.resolve("_site/data");
 await fs.mkdir(outputDir, { recursive: true });
 
-const readingsResponse = await dailyReadings();
-const readings = await readingsResponse.json();
-if (!readingsResponse.ok || readings.error || !readings.epistle?.arabic || !readings.gospel?.arabic) {
-  throw new Error("OLM daily readings could not be generated: " + (readings.error || "Required readings are missing."));
-}
-await fs.writeFile(path.join(outputDir, "daily-readings.json"), JSON.stringify(readings, null, 2) + "\n", "utf8");
-
 const beirutDate = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Beirut",
   year: "numeric",
   month: "2-digit",
   day: "2-digit"
 }).format(new Date());
+
+const readingsResponse = await dailyReadings();
+const readings = await readingsResponse.json();
+if (
+  !readingsResponse.ok ||
+  readings.error ||
+  readings.date !== beirutDate ||
+  !readings.epistle?.arabic ||
+  !readings.epistle?.english ||
+  !readings.gospel?.arabic ||
+  !readings.gospel?.english
+) {
+  throw new Error(
+    "OLM daily readings could not be verified for " + beirutDate + ": " +
+    (readings.error || `returned date ${readings.date || "unknown"} or incomplete reading texts.`)
+  );
+}
+console.log(`Verified OLM date ${readings.date} from ${readings.source}; Gospel: ${readings.gospel.reference}.`);
+console.log("Complete OLM Gospel (English): " + readings.gospel.english);
+console.log("Complete OLM Gospel (Arabic): " + readings.gospel.arabic);
+await fs.writeFile(path.join(outputDir, "daily-readings.json"), JSON.stringify(readings, null, 2) + "\n", "utf8");
 
 const explanationPath = path.resolve("data/gospel-explanation.json");
 await fs.mkdir(path.dirname(explanationPath), { recursive: true });
