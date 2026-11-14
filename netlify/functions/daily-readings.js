@@ -1,7 +1,7 @@
 
 import * as cheerio from "cheerio";
 
-const OLM_URL = "https://olm.org.lb/ar/liturgical-calendar";
+const OLM_BASE_URL = "https://olm.org.lb/ar/liturgical-calendar";
 const BIBLE_API = "https://api.biblesupersearch.com/api";
 
 // OLM's response is currently being decoded with the wrong character encoding.
@@ -172,7 +172,14 @@ async function formatReading(reading, type) {
 
 export default async () => {
   try {
-    const response = await fetch(OLM_URL, {
+    const targetDate = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Beirut",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+    const requestedUrl = `${OLM_BASE_URL}/${targetDate}`;
+    const response = await fetch(requestedUrl, {
       redirect: "follow",
       headers: {
         "User-Agent": "Mozilla/5.0",
@@ -231,6 +238,10 @@ export default async () => {
     ]);
 
     const pageUrl = dayData.web_url || response.url;
+    const returnedDate = getDateFromUrl(response.url) || getDateFromUrl(pageUrl);
+    if (returnedDate !== targetDate) {
+      throw new Error(`OLM returned readings for ${returnedDate || "an unknown date"} instead of Beirut-local ${targetDate}.`);
+    }
 
     const color = findColor(dayData);
 
@@ -243,7 +254,7 @@ export default async () => {
 
     return Response.json({
       source: pageUrl,
-      date: getDateFromUrl(pageUrl),
+      date: returnedDate,
       liturgicalDay,
       liturgicalColor: color,
       epistle,
