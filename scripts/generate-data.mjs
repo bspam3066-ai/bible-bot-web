@@ -41,7 +41,10 @@ try {
   savedExplanation = JSON.parse(await fs.readFile(explanationPath, "utf8"));
 } catch {}
 
-if (savedExplanation?.date !== beirutDate && readings.date === beirutDate) {
+if (
+  (savedExplanation?.date !== beirutDate || savedExplanation?.gospelReference !== readings.gospel.reference) &&
+  readings.date === beirutDate
+) {
   try {
     if (!readings.gospel?.english || !readings.gospel?.arabic) {
       throw new Error("Both Gospel language texts are required before generating an explanation.");
@@ -187,8 +190,15 @@ Required shape:
   }
 }
 
-if (savedExplanation?.date === beirutDate && readings.date === beirutDate) {
+if (
+  savedExplanation?.date === beirutDate &&
+  savedExplanation?.gospelReference === readings.gospel.reference &&
+  readings.date === beirutDate
+) {
   await fs.copyFile(explanationPath, path.join(outputDir, "gospel-explanation.json"));
+  console.log("Published a Gospel explanation matching today's OLM date and reference.");
+} else {
+  console.warn("No Gospel explanation matching today's OLM date and reference will be published.");
 }
 
 
