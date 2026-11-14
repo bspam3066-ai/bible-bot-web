@@ -189,6 +189,9 @@
     try {
       const beirutDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Beirut", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
       const data = await fetchJson(`./data/daily-readings.json?day=${beirutDate}`);
+      if (data.date !== beirutDate) {
+        throw new Error(`Today's OLM readings are not available yet. Published date: ${data.date || "unknown"}; expected: ${beirutDate}.`);
+      }
       let explanation = null;
       try {
         const candidate = await fetchJson("./data/gospel-explanation.json");
@@ -327,14 +330,16 @@
   async function showGospelFeature(){
     setPanel("Gospel of the Day · إنجيل اليوم",'<p class="loading">Loading today’s Gospel… / جارٍ تحميل إنجيل اليوم…</p>');
     try{
-      const data=await fetchJson("./data/daily-readings.json"),g=data.gospel;
+      const beirutDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Beirut", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      const data=await fetchJson(`./data/daily-readings.json?day=${beirutDate}`),g=data.gospel;
+      if (data.date !== beirutDate) throw new Error(`Today's OLM Gospel is not available yet. Published date: ${data.date || "unknown"}; expected: ${beirutDate}.`);
       if(!g||(!g.english&&!g.arabic))throw new Error("The Gospel text is not available right now.");
       const body=settings.language==="en"?`<div class="reference">${escapeHtml(g.englishVersion||"English")} · ${escapeHtml(g.englishReference||g.reference||"Gospel")}</div><p class="scripture">${escapeHtml(g.english||"English text unavailable.")}</p>`:settings.language==="ar"?`<div class="reference">${escapeHtml(g.reference||"الإنجيل")}</div><p class="scripture arabic" dir="rtl">${escapeHtml(g.arabic||"النص العربي غير متاح.")}</p>`:`<div class="two-language"><div><div class="reference">ENGLISH${g.englishVersion ? " · " + escapeHtml(g.englishVersion) : ""} · ${escapeHtml(g.englishReference||g.reference||"Gospel")}</div><p class="scripture">${escapeHtml(g.english||"English text unavailable.")}</p></div><div dir="rtl"><div class="reference">العربية · ${escapeHtml(g.reference||"الإنجيل")}</div><p class="scripture arabic" dir="rtl">${escapeHtml(g.arabic||"النص العربي غير متاح.")}</p></div></div>`;
 
       let explanation = null;
       try {
         const candidate = await fetchJson("./data/gospel-explanation.json");
-        if (candidate.date === data.date && candidate.gospelReference === g.reference) explanation = candidate;
+        if (candidate.date === beirutDate && candidate.date === data.date && candidate.gospelReference === g.reference) explanation = candidate;
       } catch {}
 
       const section = (key, titleEn, titleAr) => {
